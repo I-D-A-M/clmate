@@ -101,8 +101,10 @@ PROJECT PROGRESS [Project began 29/9/2014]
 [Release version].[major update / break compatibility].[minor update / bugfix]
 
 [0.0.1] Main window UI and login box working [5/10/14]
+
 [0.0.2] Database UI test successful {dbtest.py} and integration into main
         program now beginning [14/10/14]
+
 [0.0.3] Login check now refers to a database table of login details and
         has a warning popup if the login is unsuccessful [15/10/14]
 [0.0.4] Class tabs are now populated based on available data including
