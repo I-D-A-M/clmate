@@ -1,2 +1,5 @@
-Innes Morrison
-Peter Brohan
+Main author:
+  Innes Morrison
+
+Contributing:
+  Peter Brohan
