@@ -64,7 +64,7 @@ def main():
     app.fontDB.addApplicationFont('ClMATE/resources/fonts/AmaticSC-Regular.ttf')
     app.fontDB.addApplicationFont('ClMATE/resources/fonts/JosefinSans-Regular.ttf')
     # Source Sans Pro / AR BONNIE
-    appFont = QtGui.QFont('Source Sans Pro', 11, weight=20)
+    appFont = QtGui.QFont('Source Sans Pro', 10, weight=20)
     appFont.setStyleStrategy(QtGui.QFont.PreferAntialias)
     app.setFont(appFont)
     # -- uncomment to view the call name for each font that has been added

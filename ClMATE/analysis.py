@@ -24,6 +24,7 @@ class Analyser(QtGui.QWidget):
         super(Analyser, self).__init__()
         self.session_details = session_details
         self.permissionLevel = self.session_details["permissionLevel"]
+        self.DBname = self.session_details["DBname"]
         self.teaching_set = teaching_set
         self.title_string = 'Viewing data for ' + self.teaching_set
         self.coalation_type = 'mean'
