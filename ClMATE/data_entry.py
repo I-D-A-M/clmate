@@ -2,10 +2,13 @@ from PyQt4 import QtGui, QtCore
 from .helpers import mean, median
 from .bases import StdWindow
 from .main_interface import OverviewWidget
-from .definitions import QBOX_SIZE, grey, white, red, pink, orange, green
+from .definitions import QBOX_SIZE, grey, white, red, pink, orange, green, export_path
 from collections import namedtuple
+from openpyxl import Workbook
 import sqlite3
 import time
+import sys
+import os
 
 
 class InputWindow(QtGui.QWidget):
@@ -118,7 +121,7 @@ class InputWindow(QtGui.QWidget):
         # Store assessment grades for reference.
         grade_order = []
         for b in range(len(boundaries)):
-            grade_order.append((str(boundaries[b][2]), len(boundaries)-b))
+            grade_order.append((str(boundaries[b][2]), len(boundaries) - b))
         # ('N', 0) allows for 'N/A' to be set (value = 0) for pupils
         # with no available target
         # NOTE:: This is 'N' not 'N/A' as targets are filtered for
@@ -189,9 +192,9 @@ class InputWindow(QtGui.QWidget):
                 targetName = 'ALPs'
             else:
                 failure = QtGui.QMessageBox.question(
-                                    self,
-                                    "Warning!",
-                                    "Unable to find year group for current class.")
+                    self,
+                    "Warning!",
+                    "Unable to find year group for current class.")
                 return -1
         DB.close()
 
@@ -234,13 +237,13 @@ class InputWindow(QtGui.QWidget):
         dict_items_for_median = grade_dict.items()
         # -- Try to locate the mean and median target grades for the class.
         try:
-            for grade,val in dict_items_for_median:
+            for grade, val in dict_items_for_median:
                 if val == median_score:
                     median_target = grade
         except KeyError:
             median_target = 'N/A'
         try:
-            for grade,val in dict_items_for_mean:
+            for grade, val in dict_items_for_mean:
                 if val == mean_score:
                     mean_target = grade
         except KeyError:
@@ -248,12 +251,12 @@ class InputWindow(QtGui.QWidget):
         stats_list = [mean_target, median_target, '']
         # The main area is made up of a data entry table with pupil level
         # totals etc and a summary table with class level question breakdown.
-        questions = QtGui.QTableWidget(self.CLASS_SIZE, self.NUM_QUESTIONS+6)
-        summary = QtGui.QTableWidget(3, self.NUM_QUESTIONS+6)
+        questions = QtGui.QTableWidget(self.CLASS_SIZE, self.NUM_QUESTIONS + 6)
+        summary = QtGui.QTableWidget(3, self.NUM_QUESTIONS + 6)
         summary.setFixedHeight(130)
         # -- Get rid of the row numbering to clean up the UI
         blank_labels = ['' for x in range(self.CLASS_SIZE)]
-        for q in range(self.NUM_QUESTIONS+6):
+        for q in range(self.NUM_QUESTIONS + 6):
             questions.setColumnWidth(q, QBOX_SIZE)
             summary.setColumnWidth(q, QBOX_SIZE)
         questions.setVerticalHeaderLabels(blank_labels)
@@ -277,19 +280,19 @@ class InputWindow(QtGui.QWidget):
             totalcell.setBackgroundColor(grey)
             totalcell.setFlags(QtCore.Qt.NoItemFlags)
             totalcell.setTextColor(white)
-            questions.setItem(r, self.NUM_QUESTIONS+2, totalcell)
+            questions.setItem(r, self.NUM_QUESTIONS + 2, totalcell)
 
             percentcell = QtGui.QTableWidgetItem()
             percentcell.setBackgroundColor(grey)
             percentcell.setFlags(QtCore.Qt.NoItemFlags)
             percentcell.setTextColor(white)
-            questions.setItem(r, self.NUM_QUESTIONS+3, percentcell)
+            questions.setItem(r, self.NUM_QUESTIONS + 3, percentcell)
 
             gradecell = QtGui.QTableWidgetItem()
             gradecell.setBackgroundColor(grey)
             gradecell.setFlags(QtCore.Qt.NoItemFlags)
             gradecell.setTextColor(white)
-            questions.setItem(r, self.NUM_QUESTIONS+4, gradecell)
+            questions.setItem(r, self.NUM_QUESTIONS + 4, gradecell)
 
             relativecell = QtGui.QTableWidgetItem()
             relativecell.setBackgroundColor(grey)
@@ -297,7 +300,7 @@ class InputWindow(QtGui.QWidget):
             relativecell.setTextColor(white)
             if not GRADE_COMP_ENABLED:
                 relativecell.setText('##')
-            questions.setItem(r, self.NUM_QUESTIONS+5, relativecell)
+            questions.setItem(r, self.NUM_QUESTIONS + 5, relativecell)
 
         # -- Initialise the summary panel
         sum_titles = ['Mean', 'Median', '% marks obtained']
@@ -320,19 +323,19 @@ class InputWindow(QtGui.QWidget):
             totalcell.setBackgroundColor(grey)
             totalcell.setFlags(QtCore.Qt.NoItemFlags)
             totalcell.setTextColor(white)
-            summary.setItem(s, self.NUM_QUESTIONS+2, totalcell)
+            summary.setItem(s, self.NUM_QUESTIONS + 2, totalcell)
 
             percentcell = QtGui.QTableWidgetItem()
             percentcell.setBackgroundColor(grey)
             percentcell.setFlags(QtCore.Qt.NoItemFlags)
             percentcell.setTextColor(white)
-            summary.setItem(s, self.NUM_QUESTIONS+3, percentcell)
+            summary.setItem(s, self.NUM_QUESTIONS + 3, percentcell)
 
             gradecell = QtGui.QTableWidgetItem()
             gradecell.setBackgroundColor(grey)
             gradecell.setFlags(QtCore.Qt.NoItemFlags)
             gradecell.setTextColor(white)
-            summary.setItem(s, self.NUM_QUESTIONS+4, gradecell)
+            summary.setItem(s, self.NUM_QUESTIONS + 4, gradecell)
 
             relativecell = QtGui.QTableWidgetItem()
             relativecell.setBackgroundColor(grey)
@@ -340,13 +343,13 @@ class InputWindow(QtGui.QWidget):
             relativecell.setTextColor(white)
             if not GRADE_COMP_ENABLED:
                 relativecell.setText('##')
-            summary.setItem(s, self.NUM_QUESTIONS+5, relativecell)
+            summary.setItem(s, self.NUM_QUESTIONS + 5, relativecell)
 
             for q in range(self.NUM_QUESTIONS):
                 qcell = QtGui.QTableWidgetItem()
                 qcell.setBackgroundColor(white)
                 qcell.setFlags(QtCore.Qt.NoItemFlags)
-                summary.setItem(s, q+2, qcell)
+                summary.setItem(s, q + 2, qcell)
         # Resise the name and target columns for both panels
         questions.resizeColumnToContents(0)
         summary.setColumnWidth(0, questions.columnWidth(0))
@@ -356,8 +359,8 @@ class InputWindow(QtGui.QWidget):
         qHeader_list = ['Name', targetName]
         sHeader_list = ['', '']
         for n in range(self.NUM_QUESTIONS):
-            qHeader_list.append(str(n+1))
-            sHeader_list.append(str(n+1))
+            qHeader_list.append(str(n + 1))
+            sHeader_list.append(str(n + 1))
         qHeader_list.append('Total')
         sHeader_list.append('Total')
         qHeader_list.append('  %  ')
@@ -369,8 +372,8 @@ class InputWindow(QtGui.QWidget):
 
         # Resize the last three columns so that they are always in line
         for n in range(2, 6):
-            questions.setColumnWidth(self.NUM_QUESTIONS+n, 55)
-            summary.setColumnWidth(self.NUM_QUESTIONS+n, 55)
+            questions.setColumnWidth(self.NUM_QUESTIONS + n, 55)
+            summary.setColumnWidth(self.NUM_QUESTIONS + n, 55)
 
         # Find the total marks available for each question and
         # store them for use in update_summaries()
@@ -379,7 +382,7 @@ class InputWindow(QtGui.QWidget):
             col_maximums = []
             for q in range(self.NUM_QUESTIONS):
                 query = "select qMark from assessments where aName = ? and qNum = ?"
-                qMark = DB.execute(query, (self.CHOSEN_ASSESSMENT, q+1)).fetchone()
+                qMark = DB.execute(query, (self.CHOSEN_ASSESSMENT, q + 1)).fetchone()
                 col_maximums.append(qMark[0])
         DB.close()
 
@@ -394,12 +397,12 @@ class InputWindow(QtGui.QWidget):
         summary.setVerticalHeaderLabels(['', '', ''])
         summary.setHorizontalHeaderLabels(sHeader_list)
         for q in range(self.NUM_QUESTIONS):
-            questions.horizontalHeaderItem(q+2).setToolTip(
-                        self.QNAMES[q] +
-                        "  ( /"+str(col_maximums[q])+")")
-            summary.horizontalHeaderItem(q+2).setToolTip(
-                        self.QNAMES[q] +
-                        "  ( /"+str(col_maximums[q])+")")
+            questions.horizontalHeaderItem(q + 2).setToolTip(
+                self.QNAMES[q] +
+                "  ( /" + str(col_maximums[q]) + ")")
+            summary.horizontalHeaderItem(q + 2).setToolTip(
+                self.QNAMES[q] +
+                "  ( /" + str(col_maximums[q]) + ")")
 
         # Populate the questions panel with prior data if found
         DBname = self.session_details["DBname"]
@@ -413,7 +416,7 @@ class InputWindow(QtGui.QWidget):
                 for row in range(self.CLASS_SIZE):
                     for col in range(self.NUM_QUESTIONS):
                         questions.setItem(row,
-                                          col+2,
+                                          col + 2,
                                           QtGui.QTableWidgetItem("%d" % 0))
             else:
                 # -- Read in stored data from the last data entry session.
@@ -425,18 +428,18 @@ class InputWindow(QtGui.QWidget):
                     # This should slice the results list into pupil
                     # chunks with each one ordered by qNum
                     lower = (row * self.NUM_QUESTIONS)
-                    upper = ((row+1) * self.NUM_QUESTIONS)
-                    current_pupil_results = class_results[lower : upper]
+                    upper = ((row + 1) * self.NUM_QUESTIONS)
+                    current_pupil_results = class_results[lower: upper]
                     for col in range(self.NUM_QUESTIONS):
                         pMark = int(current_pupil_results[col][0])
                         questions.setItem(row,
-                                          col+2,
+                                          col + 2,
                                           QtGui.QTableWidgetItem("%d" % pMark))
         DB.close()
 
         # -- Clipboard management details
         self.clipboard = QtGui.QApplication.instance().clipboard()
-        # -- Set the keyboard shortcuts ctrl+c for copy and ctrl+v for paste
+        # -- Set the keyboard shortcuts ctrl+c for copy and ctrl+v fo r paste
         paste = QtGui.QShortcut(QtGui.QKeySequence('Ctrl+v'), questions)
         paste.activated.connect(self.handlePaste)
         copy = QtGui.QShortcut(QtGui.QKeySequence('Ctrl+c'), questions)
@@ -458,13 +461,13 @@ class InputWindow(QtGui.QWidget):
         '''
         self.stackLayout.setCurrentIndex(self.switcher.currentIndex())
         layout = self.stackLayout.currentWidget().layout()
-        active = layout.itemAtPosition(0,1).widget()
+        active = layout.itemAtPosition(0, 1).widget()
         self.update_summaries()
 
     def handleCopy(self):
         copied_text = ''
         layout = self.stackLayout.currentWidget().layout()
-        active = layout.itemAtPosition(0,1).widget()
+        active = layout.itemAtPosition(0, 1).widget()
         questions = active.layout().itemAt(0).widget()
         sRange = questions.selectedRanges()[0]
         for row in range(sRange.rowCount()):
@@ -473,8 +476,8 @@ class InputWindow(QtGui.QWidget):
             for col in range(sRange.columnCount()):
                 if col > 0:
                     copied_text += '\t'
-                selection = questions.item(sRange.topRow()+row,
-                                           sRange.leftColumn()+col)
+                selection = questions.item(sRange.topRow() + row,
+                                           sRange.leftColumn() + col)
                 copied_text += str(selection.text())
         self.clipboard.setText(copied_text)
 
@@ -484,7 +487,7 @@ class InputWindow(QtGui.QWidget):
         # Will need to selectively drop the rest of the current
         # row / selection if out of bounds.
         layout = self.stackLayout.currentWidget().layout()
-        active = layout.itemAtPosition(0,1).widget()
+        active = layout.itemAtPosition(0, 1).widget()
         questions = active.layout().itemAt(0).widget()
         sRange = questions.selectedRanges()[0]
         clipboard_text = self.clipboard.text()
@@ -497,7 +500,7 @@ class InputWindow(QtGui.QWidget):
         with sqlite3.connect(DBname) as DB:
             CHOSEN_ASSESSMENT = str(self.switcher.currentText())
             query = "select count(*) from assessments where aName = ?"
-            NUM_QUESTIONS = DB.execute(query,(CHOSEN_ASSESSMENT,)).fetchone()[0]
+            NUM_QUESTIONS = DB.execute(query, (CHOSEN_ASSESSMENT, )).fetchone()[0]
         DB.close()
 
         # -- Only paste if the selection will contain ALL of the data
@@ -510,7 +513,7 @@ class InputWindow(QtGui.QWidget):
             rows = rows[:-1]
             numRows = len(rows)
         if ((ROW + numRows <= self.CLASS_SIZE) and
-           (COL + numColumns <= NUM_QUESTIONS+2)):
+           (COL + numColumns <= NUM_QUESTIONS + 2)):
             active.blockSignals(True)
             for r in enumerate(rows):
                 columns = r[1].split('\t')
@@ -523,9 +526,9 @@ class InputWindow(QtGui.QWidget):
         # -- Warn the user that the paste action has been aborted
         else:
             failure = QtGui.QMessageBox.question(
-                            self,
-                            'Warning!',
-                            "Copied values will not fit in the selected range.")
+                self,
+                'Warning!',
+                "Copied values will not fit in the selected range.")
             return -1
 
     def replace_main_widget(self):
@@ -567,7 +570,7 @@ class InputWindow(QtGui.QWidget):
         '''
         # Retrieve the current active questions widget from the grid layout
         layout = self.stackLayout.currentWidget().layout()
-        active = layout.itemAtPosition(0,1).widget()
+        active = layout.itemAtPosition(0, 1).widget()
         questions = active.layout().itemAt(0).widget()
         summary = active.layout().itemAt(1).widget()
         # Identify assessment properties based on which assessment is
@@ -583,7 +586,7 @@ class InputWindow(QtGui.QWidget):
         DBname = self.session_details["DBname"]
         with sqlite3.connect(DBname) as DB:
             query = "select count(*) from assessments where aName = ?"
-            NUM_QUESTIONS = DB.execute(query,(CHOSEN_ASSESSMENT,)).fetchone()[0]
+            NUM_QUESTIONS = DB.execute(query, (CHOSEN_ASSESSMENT, )).fetchone()[0]
         DB.close()
 
         ####################################################
@@ -594,12 +597,12 @@ class InputWindow(QtGui.QWidget):
         for Q in range(NUM_QUESTIONS):
             class_marks = []
             for p in range(self.CLASS_SIZE):
-                qNum = Q+1
-                class_marks.append(int(questions.item(p, Q+2).text()))
+                qNum = Q + 1
+                class_marks.append(int(questions.item(p, Q + 2).text()))
             qMean = mean(class_marks)
             qMedian = median(class_marks)
-            total_q_mark = col_maximums[Q]*self.CLASS_SIZE
-            qPerc = int(round(float(sum(class_marks))/(total_q_mark)*100))
+            total_q_mark = col_maximums[Q] * self.CLASS_SIZE
+            qPerc = int(round(float(sum(class_marks)) / (total_q_mark) * 100))
             q_details = stat(qNum, qMean, qMedian, qPerc)
             qStatsList.append(q_details)
         # -- create a sorted version of the list by percentage of marks achieved
@@ -615,15 +618,15 @@ class InputWindow(QtGui.QWidget):
             for q in top3:
                 query = "select qTitle from assessments where aName = ?"
                 qname = DB.execute(query,
-                                   (CHOSEN_ASSESSMENT,)).fetchall()[q.Num-1][0]
-                qSummary = '\t'+str(q.Num)+') '+qname+'  '+str(q.Perc)+'%\n'
+                                   (CHOSEN_ASSESSMENT,)).fetchall()[q.Num - 1][0]
+                qSummary = '\t' + str(q.Num) + ') ' + qname + '  ' + str(q.Perc) + '%\n'
                 top3Qdetails += qSummary
             bottom3Qdetails = ''
             for q in bottom3:
                 query = "select qTitle from assessments where aName = ?"
                 qname = DB.execute(query,
-                                   (CHOSEN_ASSESSMENT,)).fetchall()[q.Num-1][0]
-                qSummary = '\t'+str(q.Num)+') '+qname+'  '+str(q.Perc)+'%\n'
+                                   (CHOSEN_ASSESSMENT,)).fetchall()[q.Num - 1][0]
+                qSummary = '\t' + str(q.Num) + ') ' + qname + '  ' + str(q.Perc) + '%\n'
                 bottom3Qdetails += qSummary
         DB.close()
 
@@ -641,12 +644,12 @@ class InputWindow(QtGui.QWidget):
             pGrades = []
             gradeCount = []
             for p in range(self.CLASS_SIZE):
-                grade = questions.item(p, NUM_QUESTIONS+4).text()
+                grade = questions.item(p, NUM_QUESTIONS + 4).text()
                 pGrades.append(grade)
             for g in boundaries:
                 gradeCount.append(pGrades.count(g[2]))
             gradeSplit = '% Grade splits for this assessment:\n'
-            perc = float("{0:.1f}".format(gradeCount[0]/self.CLASS_SIZE*100))
+            perc = float("{0:.1f}".format(gradeCount[0] / self.CLASS_SIZE * 100))
             perc = str(perc)
             gradeSplit = (gradeSplit +
                           '\t' + boundaries[0][2] +
@@ -656,13 +659,14 @@ class InputWindow(QtGui.QWidget):
             for g in enumerate(boundaries):
                 if g[1][2] != boundaries[0][2]:
                     sumSoFar += gradeCount[g[0]]
-                    perc = float("{0:.1f}".format(sumSoFar/self.CLASS_SIZE*100))
+                    perc = float("{0:.1f}".format(sumSoFar / self.CLASS_SIZE * 100))
                     perc = str(perc)
                     gradeSplit = (gradeSplit +
                                   '\t' + boundaries[0][2] +
                                   '-' + g[1][2] +
                                   ': ' +
                                   perc + '%\n')
+        gradeSplit = '% Grade splits have been disabled for this assessment.\n'
         # -- Build and populate the overview
         global overview
         overview = StdWindow()
@@ -681,28 +685,28 @@ class InputWindow(QtGui.QWidget):
     def commit_to_DB(self):
         username = self.session_details["username"]
         with open('clmate_log.txt', 'a') as log:
-            print("    {} starting save of data for {} at: {}".format(username,
-                                                                      self.CHOSEN_CLASS,
-                                                                      time.ctime()),
-                                                                      file=log)
+            print("    {} starting save of data for {} at: {}".format(
+                  username,
+                  self.CHOSEN_CLASS,
+                  time.ctime()),
+                  file=log)
 
         DBname = self.session_details["DBname"]
         with sqlite3.connect(DBname) as DB:
             layout = self.stackLayout.currentWidget().layout()
-            active = layout.itemAtPosition(0,1).widget()
+            active = layout.itemAtPosition(0, 1).widget()
             questions = active.layout().itemAt(0).widget()
             aName = str(self.switcher.currentText())
             query = "select aID from assignedTests where aName = ?"
             aID = DB.execute(query, (aName,)).fetchone()[0]
             aID = int(aID)
             query = "select count(*) from assessments where aName = ?"
-            NUM_QUESTIONS = DB.execute(query,(aName,)).fetchone()[0]
+            NUM_QUESTIONS = DB.execute(query, (aName, )).fetchone()[0]
             teaching_set = self.CHOSEN_CLASS
 
             results = list()
             query = "select UPN from cohort where name = ? and teaching_set = ?"
-            UPN = DB.execute(query,
-                            (self.name_list[0], teaching_set)).fetchone()[0]
+            UPN = DB.execute(query, (self.name_list[0], teaching_set)).fetchone()[0]
             query = ("select pMark from results where UPN = ? "
                      "and aName = ? and qNum = ?")
             already_entries = DB.execute(query, (UPN, aName, 1)).fetchone()
@@ -713,13 +717,13 @@ class InputWindow(QtGui.QWidget):
                 UPN = DB.execute(query,
                                  (self.name_list[p], teaching_set)).fetchone()[0]
                 for q in range(NUM_QUESTIONS):
-                    qNum = q+1
-                    pMark = int(questions.item(p, q+2).text())
+                    qNum = q + 1
+                    pMark = int(questions.item(p, q + 2).text())
                     # Test and block saving if errors were made in data entry
                     if pMark == 999999:
                         failure = QtGui.QMessageBox.question(self, 'Warning!',
-                        "Errors were detected in the data you have entered. \
-                        Please re-check any red highlighted cells.")
+                            "Errors were detected in the data you have entered. \
+                            Please re-check any red highlighted cells.")
                         results = None
                         return 'errors found in data'
                     else:
@@ -729,7 +733,7 @@ class InputWindow(QtGui.QWidget):
             DB.execute("PRAGMA journal_mode = OFF")
             if already_entries:
                 query = ("update results set pMark = ? where aID = ? and UPN = ? "
-                        "and teaching_set = ? and aName = ? and qNum = ?")
+                         "and teaching_set = ? and aName = ? and qNum = ?")
                 DB.executemany(query, results)
             else:
                 query = ("insert into results (pMark, aID, UPN, teaching_set, "
@@ -752,7 +756,7 @@ class InputWindow(QtGui.QWidget):
         '''
         # -- Locate required fields
         layout = self.stackLayout.currentWidget().layout()
-        active = layout.itemAtPosition(0,1).widget()
+        active = layout.itemAtPosition(0, 1).widget()
         questions = active.layout().itemAt(0).widget()
         aName = str(self.switcher.currentText())
 
@@ -776,7 +780,7 @@ class InputWindow(QtGui.QWidget):
         # This needs to be set based on the OS
         OS = sys.platform
         if OS == 'linux' or OS == 'linux2':
-            title = validCName+'_'+aName+'_'+time.strftime("%d-%m-%Y")+'.xlsx'
+            title = validCName + '_' + aName + '_' + time.strftime("%d-%m-%Y") + '.xlsx'
         elif OS == 'win32':
             # Default path for export will need to be set
             # in the first time wizard
@@ -793,7 +797,7 @@ class InputWindow(QtGui.QWidget):
         # Block saving if there are errors in the data
         for p in range(self.CLASS_SIZE):
             for q in range(NUM_QUESTIONS):
-                pMark = int(questions.item(p, q+2).text())
+                pMark = int(questions.item(p, q + 2).text())
                 # Test and block saving if errors were made in data entry
                 if pMark == 999999:
                     failure = QtGui.QMessageBox.question(
@@ -810,12 +814,12 @@ class InputWindow(QtGui.QWidget):
         # -- Set up column headings
         headings = ['UPN', 'Pupil name', 'Target']
         for n in range(NUM_QUESTIONS):
-            headings.append(str(n+1))
+            headings.append(str(n + 1))
         headings.append('Total')
         headings.append('  %  ')
         headings.append('Grade')
         headings.append('Relative')
-        for col in range(NUM_QUESTIONS+7):
+        for col in range(NUM_QUESTIONS + 7):
             heading = ws.cell(row=1, column=(col + 1))
             heading.value = headings[col]
 
@@ -827,11 +831,11 @@ class InputWindow(QtGui.QWidget):
                                      (self.name_list[r],)).fetchone()[0]
                 upn = ws.cell(row=(r + 2), column=1)
                 upn.value = upn_val
-                for c in range(NUM_QUESTIONS+5):
+                for c in range(NUM_QUESTIONS + 5):
                     cell_contents = str(questions.item(r, c).text())
                     excel_cell = ws.cell(row=(r + 2), column=(c + 2))
                     excel_cell.value = cell_contents
-                rel = str(questions.item(r, NUM_QUESTIONS+5).text()[1:])
+                rel = str(questions.item(r, NUM_QUESTIONS + 5).text()[1:])
                 excel_cell = ws.cell(row=(r + 2), column=(NUM_QUESTIONS + 7))
                 excel_cell.value = rel
         DB.close()
@@ -848,356 +852,208 @@ class InputWindow(QtGui.QWidget):
     def update_summaries(self, *args):
         '''
         Handle user input error detection, conditional formatting,
-        # updating of summary statistics and calculation of pupil grades.
-        NOTE:: Variable execution based on assessment GRADE_COMP_ENABLED
+        updating of summary statistics and calculation of pupil grades.
+        NOTE:: There is variable execution based on assessment GRADE_COMP_ENABLED
         '''
-        # Retrieve the current active questions widget from the grid layout
-        layout = self.stackLayout.currentWidget().layout()
-        active = layout.itemAtPosition(0,1).widget()
+        # Retrieve the current active questions widget from the grid layout.
+        active = self.stackLayout.currentWidget().layout().itemAtPosition(0, 1).widget()
         questions = active.layout().itemAt(0).widget()
         summary = active.layout().itemAt(1).widget()
+
         # Prevent further signals being sent while updating the table
-        # in order to stop infinite loops.
+        # in order to stop our changes triggering another call.
         questions.blockSignals(True)
+
         # Identify assessment properties based on which assessment is
         # currently active in the InpuWindow widget.
         grade_dict = self.grade_dict_list[self.switcher.currentIndex()]
         boundaries = self.boundary_list[self.switcher.currentIndex()]
         col_maximums = self.col_max_list[self.switcher.currentIndex()]
-        # col_maximums = [(Q totals...), total, 100]
-        total_marks = col_maximums[-2]
+        # NOTE: col_maximums = [(Q totals...), total, 100]
+        # NOTE: This functionality needs to be removed (or at least changed) as it is
+        # currently only intended as a stop-gap.
         GRADE_COMP_ENABLED = self.grade_comp_list[self.switcher.currentIndex()]
-        CHOSEN_ASSESSMENT = str(self.switcher.currentText())
+        # NOTE: This may need to be changed to -1 if I remove the 100 from the end of colmax
+        NUM_QUESTIONS = len(col_maximums) - 2
 
-        DBname = self.session_details["DBname"]
-        with sqlite3.connect(DBname) as DB:
-            query = "select count(*) from assessments where aName = ?"
-            NUM_QUESTIONS = DB.execute(query,
-                                       (str(CHOSEN_ASSESSMENT),)).fetchone()[0]
-        DB.close()
-
-        # -- update_summaries() was called by ClMATE: update ALL cells.
         if len(args) == 0:
-            # Calculate pupil level statistics
-            class_grade_sum = []
-            on_target_sum = []
-            for p in range(self.CLASS_SIZE):
-                pupil_marks = []
+            for ROW in range(self.CLASS_SIZE):
                 for q in range(NUM_QUESTIONS):
-                    if str(questions.item(p, q+2).text()).isdigit():
-                        pMark = int(questions.item(p, q+2).text())
-                    else:
-                        pMark = 9999
-                        questions.setItem(p,
-                                          q+2,
-                                          QtGui.QTableWidgetItem("%s" % '9999'))
-                        questions.item(p, q+2).setBackgroundColor(red)
-                    if pMark != 9999:
-                        # Colour code entered marks
-                        if pMark == col_maximums[q]:
-                            questions.item(p,
-                                           q+2).setBackgroundColor(green)
-                        elif pMark == 0:
-                            questions.item(p,
-                                           q+2).setBackgroundColor(pink)
-                        elif pMark == col_maximums[q]-1:
-                            questions.item(p,
-                                           q+2).setBackgroundColor(orange)
-                        elif pMark == col_maximums[q]-2:
-                            if col_maximums[q] > 4:
-                                questions.item(p,
-                                               q+2).setBackgroundColor(orange)
-                            else:
-                                questions.item(p,
-                                               q+2).setBackgroundColor(pink)
-                        else:
-                            questions.item(p,
-                                           q+2).setBackgroundColor(pink)
-                        # Test for invalid entry
-                        if pMark > col_maximums[q]:
-                            error = "%s" % '9999'
-                            questions.setItem(p,
-                                              q+2,
-                                              QtGui.QTableWidgetItem(error))
-                            questions.item(p, q+2).setBackgroundColor(red)
-                    pupil_marks.append(pMark)
-                pupil_total = sum(pupil_marks)
-                questions.item(p, NUM_QUESTIONS+2).setText(str(pupil_total))
-                pupil_perc = int(round(float(pupil_total)/total_marks*100))
-                questions.item(p, NUM_QUESTIONS+3).setText(str(pupil_perc))
-                if GRADE_COMP_ENABLED:
-                    # Look through the grade boundaries for the assessment
-                    # and use the pupil's current percentage to assign a grade.
-                    for b in boundaries:
-                        grade = str(b[2])
-                        perc = b[3]
-                        if pupil_perc >= perc:
-                            questions.item(p, NUM_QUESTIONS+4).setText(grade)
-                            grade_score = grade_dict[grade]
-                            class_grade_sum.append(grade_score)
-                            # Some targets will be split over two values:
-                            # this would cause a problem as the grade boundary
-                            # dictionary keys would raise an error.
-                            val = questions.item(p, 1)
-                            single_target_grade = str(val.text())
-                            split_target = False
-                            if len(single_target_grade) > 1:
-                                single_target_grade = single_target_grade[0]
-                                split_target = True
-                            try:
-                                target_score = grade_dict[single_target_grade]
-                            except KeyError:
-                                target_score = 0
-                            # ClMATE treats these with a positional 'value' of
-                            # (upper grade - 0.5) under the assumption that a
-                            # split target will always be between adjacent
-                            # grades/levels.
-                            if split_target:
-                                target_score -= 0.5
-                            if single_target_grade == 'N':
-                                on_target = 0
-                            else:
-                                on_target = grade_score - target_score
-                            on_target_sum.append(on_target)
-                            # The following unicode values denote arrows for
-                            # indicating pupil attainment relative to target.
-                            # See http://www.alanwood.net/unicode/index.html
-                            if on_target == 0 or single_target_grade == 'N':
-                                questions.item(p, NUM_QUESTIONS+5).setText(
-                                                            u'\u2192'
-                                                            + '  '
-                                                            + str(on_target))
-                            elif on_target < 0:
-                                questions.item(p, NUM_QUESTIONS+5).setText(
-                                                            u'\u2198'
-                                                            + '  '
-                                                            + str(on_target))
-                            else:
-                                questions.item(p, NUM_QUESTIONS+5).setText(
-                                                            u'\u2197'
-                                                            + '  '
-                                                            + str(on_target))
-                            break
-                else:
-                    for b in boundaries:
-                        grade = str(b[2])
-                        perc = b[3]
-                        if pupil_perc >= perc:
-                            questions.item(p, NUM_QUESTIONS+4).setText(grade)
-                            break
-                    questions.item(p, (NUM_QUESTIONS + 5)).setText('##')
-        # -- update_summaries() was called by a cell::
-        #    ONLY update values tied to that cell
-        elif len(args) > 0:
-            if args[0].column() < NUM_QUESTIONS+2:
-                # Shorthand for accessing the cell row and column values.
+                    COL = q + 2
+                    self.validate_and_colour(ROW, COL, questions, col_maximums, NUM_QUESTIONS)
+                self.compute_pupil_stats(ROW, questions, col_maximums, NUM_QUESTIONS, boundaries, grade_dict)
+        else:
+            # Only accept triggers from user editable cells.
+            if args[0].column() < NUM_QUESTIONS + 2:
                 ROW, COL = args[0].row(), args[0].column()
-                # Check the calling cell for valid entry and then colour/alter.
-                # -- Test for non-numerical values
-                if str(questions.item(ROW, COL).text()).isdigit():
-                    pMark = int(questions.item(ROW, COL).text())
+                self.validate_and_colour(ROW, COL, questions, col_maximums, NUM_QUESTIONS)
+                self.compute_pupil_stats(ROW, questions, col_maximums, NUM_QUESTIONS, boundaries, grade_dict)
+            else:
+                return
+        self.compute_summary_stats(ROW, questions, summary, col_maximums, NUM_QUESTIONS, boundaries, grade_dict)
+
+        # Re-enable cell signalling for future updates now that we have finished.
+        questions.blockSignals(False)
+
+
+    def validate_and_colour(self, ROW, COL, questions, col_maximums, NUM_QUESTIONS):
+        # Test for invalid entry and then colour.
+        if str(questions.item(ROW, COL).text()).isdigit():
+            pMark = int(questions.item(ROW, COL).text())
+        else:
+            questions.setItem(ROW, COL, QtGui.QTableWidgetItem("%s" % '999999'))
+            questions.item(ROW, COL).setBackgroundColor(red)
+            return
+
+        if (pMark > col_maximums[COL - 2]) or (pMark < 0):
+            questions.setItem(ROW, COL, QtGui.QTableWidgetItem("%s" % '999999'))
+            questions.item(ROW, COL).setBackgroundColor(red)
+            return
+
+        if pMark >= (col_maximums[COL - 2]) * 0.9:
+            questions.item(ROW, COL).setBackgroundColor(green)
+        elif pMark >= (col_maximums[COL - 2]) * 0.6:
+            questions.item(ROW, COL).setBackgroundColor(orange)
+        else:
+            questions.item(ROW, COL).setBackgroundColor(pink)
+
+    def compute_pupil_stats(self, ROW, questions, col_maximums, NUM_QUESTIONS, boundaries, grade_dict):
+        pupil_marks = []
+        total_marks = col_maximums[-2]
+        for Q in range(NUM_QUESTIONS):
+            pMark = int(questions.item(ROW, Q + 2).text())
+            if pMark != 999999:
+                pupil_marks.append(pMark)
+        pupil_total = sum(pupil_marks)
+        questions.item(ROW, NUM_QUESTIONS + 2).setText(str(pupil_total))
+        pupil_perc = int(round(float(pupil_total) / total_marks * 100))
+        questions.item(ROW, NUM_QUESTIONS + 3).setText(str(pupil_perc))
+
+        on_target_sum = []
+        # Look through the grade boundaries for the assessment
+        # and use the pupil's current percentage to assign a grade.
+        for b in boundaries:
+            grade = str(b[2])
+            perc = b[3]
+            if pupil_perc >= perc:
+                questions.item(ROW, NUM_QUESTIONS + 4).setText(grade)
+                # Some targets will be split over two values:
+                # this would cause a problem as the grade boundary
+                # dictionary keys would raise an error.
+                grade_score = grade_dict[grade]
+                g = questions.item(ROW, 1)
+                single_target_grade = str(g.text())
+                split_target = False
+                try:
+                    target_score = grade_dict[single_target_grade]
+                except KeyError:
+                    try:
+                        split_target = True
+                        single_target_grade = single_target_grade[0]
+                        target_score = grade_dict[single_target_grade]
+                    except KeyError:
+                        target_score = 0
+                # NOTE: Treating these with a positional 'value' of (upper grade - 0.5) under
+                # the assumption that a split target will be between adjacent grades/levels.
+                if split_target:
+                    target_score -= 0.5
+
+                if single_target_grade == 'N':
+                    on_target = 0
                 else:
-                    pMark = 9999
-                    questions.setItem(ROW,
-                                      COL,
-                                      QtGui.QTableWidgetItem("%s" % '9999'))
-                    questions.item(ROW, COL).setBackgroundColor(red)
-                # -- Colour the cell based on pupil performance
-                if pMark != 9999:
-                    # The col_maximums list is referenced from the start of
-                    # the questions NOT the start of the table hence the offset
-                    qCOL = COL-2
-                    if pMark == col_maximums[qCOL]:
-                        questions.item(ROW, COL).setBackgroundColor(green)
-                    elif pMark == 0:
-                        questions.item(ROW, COL).setBackgroundColor(pink)
-                    elif pMark == col_maximums[qCOL]-1:
-                        questions.item(ROW, COL).setBackgroundColor(orange)
-                    elif pMark == col_maximums[qCOL]-2:
-                        if col_maximums[qCOL] > 4:
-                            questions.item(ROW, COL).setBackgroundColor(orange)
-                        else:
-                            questions.item(ROW, COL).setBackgroundColor(pink)
-                    else:
-                        questions.item(ROW, COL).setBackgroundColor(pink)
-                    # -- Test for invalid numeric values
-                    if pMark > col_maximums[qCOL]:
-                        questions.setItem(ROW,
-                                          COL,
-                                          QtGui.QTableWidgetItem("%s" % '9999'))
-                        questions.item(ROW, COL).setBackgroundColor(red)
-                # -- Calculate and assign pupil total and percentage values.
-                pupil_marks = []
-                for Q in range(NUM_QUESTIONS):
-                    if str(questions.item(ROW, Q+2).text()).isdigit():
-                        pMark = int(questions.item(ROW, Q+2).text())
-                        if pMark != 999999:
-                            pupil_marks.append(pMark)
-                pupil_total = sum(pupil_marks)
-                questions.item(ROW, NUM_QUESTIONS+2).setText(str(pupil_total))
-                pupil_perc = int(round(float(pupil_total)/total_marks*100))
-                questions.item(ROW, NUM_QUESTIONS+3).setText(str(pupil_perc))
-                # Grade based statistics are only calculated if
-                # target grades match with the grade boundaries.
-                if GRADE_COMP_ENABLED:
-                    class_grade_sum = []
-                    on_target_sum = []
-                    # Look through the grade boundaries for the assessment
-                    # and use the pupil's current percentage to assign a grade.
-                    for b in boundaries:
-                        grade = str(b[2])
-                        perc = b[3]
-                        if pupil_perc >= perc:
-                            questions.item(ROW, NUM_QUESTIONS+4).setText(grade)
-                            grade_score = grade_dict[grade]
-                            class_grade_sum.append(grade_score)
-                            # Some targets will be split over two values:
-                            # this would cause a problem as the grade boundary
-                            # dictionary keys would raise an error.
-                            g = questions.item(ROW, 1)
-                            single_target_grade = str(g.text())
-                            split_target = False
-                            if len(single_target_grade) > 1:
-                                single_target_grade = single_target_grade[0]
-                                split_target = True
-                            try:
-                                target_score = grade_dict[single_target_grade]
-                            except KeyError:
-                                target_score = 0
-                            # ClMATE treats these with a positional 'value' of
-                            # (upper grade - 0.5) under the assumption that a
-                            # split target will always be between adjacent
-                            # grades/levels.
-                            if split_target:
-                                target_score -= 0.5
-                            if single_target_grade == 'N':
-                                on_target = 0
-                            else:
-                                on_target = grade_score - target_score
-                            on_target_sum.append(on_target)
-                            # The following unicode values denote arrows for
-                            # indicating pupil attainment relative to target.
-                            # See http://www.alanwood.net/unicode/index.html
-                            if on_target == 0 or single_target_grade == 'N':
-                                questions.item(ROW, NUM_QUESTIONS+5).setText(
-                                                            u'\u2192'
-                                                            + '  '
-                                                            + str(on_target))
-                            elif on_target < 0:
-                                questions.item(ROW, NUM_QUESTIONS+5).setText(
-                                                            u'\u2198'
-                                                            + '  '
-                                                            + str(on_target))
-                            else:
-                                questions.item(ROW, NUM_QUESTIONS+5).setText(
-                                                            u'\u2197'
-                                                            + '  '
-                                                            + str(on_target))
-                            break
+                    # 0 for on target, +ve for above and -ve for below.
+                    on_target = grade_score - target_score
+                on_target_sum.append(on_target)
+
+                # The following unicode values denote arrows for indicating pupil attainment
+                # relative to target. NOTE: See http://www.alanwood.net/unicode/index.html
+                if on_target == 0 or single_target_grade == 'N':
+                    questions.item(ROW, NUM_QUESTIONS + 5).setText(
+                        u'\u2192' + '  ' + str(on_target))
+                elif on_target < 0:
+                    questions.item(ROW, NUM_QUESTIONS + 5).setText(
+                        u'\u2198' + '  ' + str(on_target))
                 else:
-                    for b in boundaries:
-                        grade = str(b[2])
-                        perc = b[3]
-                        if pupil_perc >= perc:
-                            questions.item(ROW, NUM_QUESTIONS+4).setText(grade)
-                            break
-                    questions.item(ROW, NUM_QUESTIONS+5).setText('##')
+                    questions.item(ROW, NUM_QUESTIONS + 5).setText(
+                        u'\u2197' + '  ' + str(on_target))
+                break
+
+    def compute_summary_stats(self, ROW, questions, summary, col_maximums, NUM_QUESTIONS, boundaries, grade_dict):
         # --Update summary panel regardless of caller.
-        if GRADE_COMP_ENABLED:
-            if len(args) > 0:
-                class_grade_sum = []
-                on_target_sum = []
-                for p in range(self.CLASS_SIZE):
-                    # -- Find class grade total
-                    # -- Calculate and assign pupil total and percentage values.
-                    pupil_total = int(questions.item(p, NUM_QUESTIONS+2).text())
-                    pupil_perc = int(questions.item(p, NUM_QUESTIONS+3).text())
-                    for b in boundaries:
-                        grade = str(b[2])
-                        perc = b[3]
-                        if pupil_perc >= perc:
-                            questions.item(p, NUM_QUESTIONS+4).setText(grade)
-                            grade_score = grade_dict[grade]
-                            class_grade_sum.append(grade_score)
-                            # Some targets will be split over two values:
-                            # this would cause a problem as the grade boundary
-                            # dictionary keys would raise an error.
-                            g = questions.item(p, 1)
-                            single_target_grade = str(g.text())
-                            split_target = False
-                            if len(single_target_grade) > 1:
-                                single_target_grade = single_target_grade[0]
-                                split_target = True
-                            try:
-                                target_score = grade_dict[single_target_grade]
-                            except KeyError:
-                                target_score = 0
-                            # ClMATE treats these with a positional 'value' of
-                            # (upper grade - 0.5) under the assumption that a
-                            # split target will always be between adjacent
-                            # grades/levels.
-                            if split_target:
-                                target_score -= 0.5
-                            if single_target_grade == 'N':
-                                on_target = 0
-                            else:
-                                on_target = grade_score - target_score
-                            on_target_sum.append(on_target)
-                            break
+        class_grade_sum = []
+        on_target_sum = []
+        for p in range(self.CLASS_SIZE):
+            # -- Find class grade total
+            # -- Calculate and assign pupil total and percentage values.
+            pupil_grade = questions.item(ROW, NUM_QUESTIONS + 4).text()
+            grade_score = grade_dict[pupil_grade]
+            class_grade_sum.append(grade_score)
+            g = questions.item(ROW, 1)
+            single_target_grade = str(g.text())
+            split_target = False
+            try:
+                target_score = grade_dict[single_target_grade]
+            except KeyError:
+                try:
+                    split_target = True
+                    single_target_grade = single_target_grade[0]
+                    target_score = grade_dict[single_target_grade]
+                except KeyError:
+                    target_score = 0
+            # NOTE: Treating these with a positional 'value' of (upper grade - 0.5) under
+            # the assumption that a split target will be between adjacent grades/levels.
+            if split_target:
+                target_score -= 0.5
+
+            if single_target_grade == 'N':
+                on_target = 0
+            else:
+                # 0 for on target, +ve for above and -ve for below.
+                on_target = grade_score - target_score
+            on_target_sum.append(on_target)
+
             # -- Calculate class level statistics
             if median(on_target_sum) < 0:
-                summary.item(1, NUM_QUESTIONS+5).setText(u'\u2198'
-                                            +'  '+str(median(on_target_sum)))
+                summary.item(1, NUM_QUESTIONS + 5).setText(
+                    u'\u2198' + '  ' + str(median(on_target_sum)))
             elif median(on_target_sum) == 0:
-                summary.item(1, NUM_QUESTIONS+5).setText(u'\u2192'
-                                            +'  '+str(median(on_target_sum)))
+                summary.item(1, NUM_QUESTIONS + 5).setText(
+                    u'\u2192' + '  ' + str(median(on_target_sum)))
             else:
-                summary.item(1, NUM_QUESTIONS+5).setText(u'\u2197'
-                                            +'  '+str(median(on_target_sum)))
+                summary.item(1, NUM_QUESTIONS + 5).setText(
+                    u'\u2197' + '  ' + str(median(on_target_sum)))
             if mean(on_target_sum) < 0:
-                summary.item(0, NUM_QUESTIONS+5).setText(u'\u2198'
-                                            +'  '+str(mean(on_target_sum)))
+                summary.item(0, NUM_QUESTIONS + 5).setText(
+                    u'\u2198' + '  ' + str(mean(on_target_sum)))
             elif mean(on_target_sum) == 0:
-                summary.item(0, NUM_QUESTIONS+5).setText(u'\u2192'
-                                            +'  '+str(mean(on_target_sum)))
+                summary.item(0, NUM_QUESTIONS + 5).setText(
+                    u'\u2192' + '  ' + str(mean(on_target_sum)))
             else:
-                summary.item(0, NUM_QUESTIONS+5).setText(u'\u2197'
-                                            +'  '+str(mean(on_target_sum)))
-            # There is a different syntaxt for iterating through a dictionary
-            # in Python 3.X   NOTE:: iterators are 'consumed' on use and a new
-            # one must be built for each itteration.
+                summary.item(0, NUM_QUESTIONS + 5).setText(
+                    u'\u2197' + '  ' + str(mean(on_target_sum)))
+
             dict_items_for_mean = grade_dict.items()
             dict_items_for_median = grade_dict.items()
             # Convert mean and median grade values to ints
             # and look them up in the grade dictionary.
-            for grade,val in dict_items_for_mean:
+            for grade, val in dict_items_for_mean:
                 if val == int(round(mean(class_grade_sum))):
                     mean_grade = grade
-            summary.item(0, NUM_QUESTIONS+4).setText(mean_grade)
-            for grade,val in dict_items_for_median:
+            summary.item(0, NUM_QUESTIONS + 4).setText(mean_grade)
+            for grade, val in dict_items_for_median:
                 if val == median(class_grade_sum):
                     median_grade = grade
-            summary.item(1, NUM_QUESTIONS+4).setText(median_grade)
-        # Handle statistical cells if grade comparison has been disabled
-        else:
-            # Block out grade comparison cells when they are not in use.
-            for p in range(self.CLASS_SIZE):
-                questions.item(p, NUM_QUESTIONS+5).setText('##')
-            summary.item(0, NUM_QUESTIONS+4).setText('##')
-            summary.item(1, NUM_QUESTIONS+4).setText('##')
-            summary.item(0, NUM_QUESTIONS+5).setText('##')
-            summary.item(1, NUM_QUESTIONS+5).setText('##')
+            summary.item(1, NUM_QUESTIONS + 4).setText(median_grade)
+
         # -- Caclulate question level statistics
-        for Q in range(NUM_QUESTIONS+2):
+        for Q in range(NUM_QUESTIONS + 2):
             class_marks = []
             for p in range(self.CLASS_SIZE):
-                class_marks.append(int(questions.item(p, Q+2).text()))
+                class_marks.append(int(questions.item(p, Q + 2).text()))
             qMean = mean(class_marks)
             qMedian = median(class_marks)
-            total_q_mark = (col_maximums[Q]*self.CLASS_SIZE)
-            qPerc = int(round(float(sum(class_marks))/total_q_mark*100))
-            summary.item(0,Q+2).setText(str(qMean))
-            summary.item(1,Q+2).setText(str(qMedian))
-            summary.item(2,Q+2).setText(str(qPerc))
-        # -- Re-enable signalling for future updates
-        questions.blockSignals(False)
+            total_q_mark = (col_maximums[Q] * self.CLASS_SIZE)
+            qPerc = int(round(float(sum(class_marks)) / total_q_mark * 100))
+            summary.item(0, Q + 2).setText(str(qMean))
+            summary.item(1, Q + 2).setText(str(qMedian))
+            summary.item(2, Q + 2).setText(str(qPerc))

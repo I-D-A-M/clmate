@@ -3,7 +3,6 @@
 
 import warnings
 from PyQt4 import QtGui, QtCore
-import sqlite3
 import time
 import sys
 import os
@@ -49,13 +48,13 @@ def main():
     splash.setMask(splash_pic.mask())
     splash.show()
     app.processEvents()
-    splash.showMessage( "Now loading ClMATE: Close Monitoring and Analysis "
-                        "Tool for Educators.\nVersion:: "
-                        + ClMATE.program_version + "   " + chr(0xa9)
-                        + " I.Morrison 2014/15.\n"
-                        + ClMATE.py_v_message,
-                        alignment=0x0044,
-                        color=ClMATE.white)
+    splash.showMessage("Now loading ClMATE: Close Monitoring and Analysis "
+                       "Tool for Educators.\nVersion:: "
+                       + ClMATE.program_version + "   " + chr(0xa9)
+                       + " I.Morrison 2014/15.\n"
+                       + ClMATE.py_v_message,
+                       alignment=0x0044,
+                       color=ClMATE.white)
     app.processEvents()
 
     # -- Set up custom fonts
@@ -68,7 +67,7 @@ def main():
     appFont.setStyleStrategy(QtGui.QFont.PreferAntialias)
     app.setFont(appFont)
     # -- uncomment to view the call name for each font that has been added
-    #print(app.fontDB.families())
+    # print(app.fontDB.families())
 
     main_window = ClMATE.MainWindow()
     time.sleep(1)
@@ -82,5 +81,5 @@ if __name__ == "__main__":
     if not os.path.exists(DBname):
         from ClMATE.helpers import createDB
         createDB()
-        #ftw = firstTimeWizard()
+        # ftw = firstTimeWizard()
     main()
