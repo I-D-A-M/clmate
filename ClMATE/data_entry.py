@@ -460,8 +460,6 @@ class InputWindow(QtGui.QWidget):
         the central widget index to it.
         '''
         self.stackLayout.setCurrentIndex(self.switcher.currentIndex())
-        layout = self.stackLayout.currentWidget().layout()
-        active = layout.itemAtPosition(0, 1).widget()
         self.update_summaries()
 
     def handleCopy(self):
@@ -743,9 +741,8 @@ class InputWindow(QtGui.QWidget):
 
         fin = time.time() - start
         with open('clmate_log.txt', 'a') as log:
-            print("    {} completed save operation in {} seconds.".format(username,
-                                                                          fin),
-                                                                          file=log)
+            print("    {} completed save operation in {} seconds.".format(
+                username, fin), file=log)
         return 'no errors'
 
     def export_to_xlsx(self, breakdown_included=False):
@@ -801,10 +798,10 @@ class InputWindow(QtGui.QWidget):
                 # Test and block saving if errors were made in data entry
                 if pMark == 999999:
                     failure = QtGui.QMessageBox.question(
-                            self,
-                            'Warning!',
-                            "Errors were detected in the data you have entered."
-                            "Please re-check any red highlighted cells.")
+                        self,
+                        'Warning!',
+                        "Errors were detected in the data you have entered."
+                        "Please re-check any red highlighted cells.")
                     return -1
         # This uses openpyxl
         wb = Workbook()
@@ -842,10 +839,10 @@ class InputWindow(QtGui.QWidget):
 
         wb.save(title)
         Confirm = QtGui.QMessageBox.question(
-                                self,
-                                'Success',
-                                "Please check the ClMATE output directory "
-                                "for your spreadsheet.")
+            self,
+            'Success',
+            "Please check the ClMATE output directory "
+            "for your spreadsheet.")
         global overview
         overview.close()
 
@@ -870,9 +867,6 @@ class InputWindow(QtGui.QWidget):
         boundaries = self.boundary_list[self.switcher.currentIndex()]
         col_maximums = self.col_max_list[self.switcher.currentIndex()]
         # NOTE: col_maximums = [(Q totals...), total, 100]
-        # NOTE: This functionality needs to be removed (or at least changed) as it is
-        # currently only intended as a stop-gap.
-        GRADE_COMP_ENABLED = self.grade_comp_list[self.switcher.currentIndex()]
         # NOTE: This may need to be changed to -1 if I remove the 100 from the end of colmax
         NUM_QUESTIONS = len(col_maximums) - 2
 
@@ -894,7 +888,6 @@ class InputWindow(QtGui.QWidget):
 
         # Re-enable cell signalling for future updates now that we have finished.
         questions.blockSignals(False)
-
 
     def validate_and_colour(self, ROW, COL, questions, col_maximums, NUM_QUESTIONS):
         # Test for invalid entry and then colour.
@@ -1024,26 +1017,13 @@ class InputWindow(QtGui.QWidget):
                     u'\u2197' + '  ' + str(median(on_target_sum)))
             if mean(on_target_sum) < 0:
                 summary.item(0, NUM_QUESTIONS + 5).setText(
-                    u'\u2198' + '  ' + str(mean(on_target_sum)))
+                    u'\u2198' + '  ' + str(int(mean(on_target_sum))))
             elif mean(on_target_sum) == 0:
                 summary.item(0, NUM_QUESTIONS + 5).setText(
-                    u'\u2192' + '  ' + str(mean(on_target_sum)))
+                    u'\u2192' + '  ' + str(int(mean(on_target_sum))))
             else:
                 summary.item(0, NUM_QUESTIONS + 5).setText(
-                    u'\u2197' + '  ' + str(mean(on_target_sum)))
-
-            dict_items_for_mean = grade_dict.items()
-            dict_items_for_median = grade_dict.items()
-            # Convert mean and median grade values to ints
-            # and look them up in the grade dictionary.
-            for grade, val in dict_items_for_mean:
-                if val == int(round(mean(class_grade_sum))):
-                    mean_grade = grade
-            summary.item(0, NUM_QUESTIONS + 4).setText(mean_grade)
-            for grade, val in dict_items_for_median:
-                if val == median(class_grade_sum):
-                    median_grade = grade
-            summary.item(1, NUM_QUESTIONS + 4).setText(median_grade)
+                    u'\u2197' + '  ' + str(int(mean(on_target_sum))))
 
         # -- Caclulate question level statistics
         for Q in range(NUM_QUESTIONS + 2):
@@ -1057,3 +1037,17 @@ class InputWindow(QtGui.QWidget):
             summary.item(0, Q + 2).setText(str(qMean))
             summary.item(1, Q + 2).setText(str(qMedian))
             summary.item(2, Q + 2).setText(str(qPerc))
+
+        # Convert mean and median grade values to ints
+        # and look them up in the grade dictionary.
+        class_perc = float(summary.item(0, NUM_QUESTIONS + 3).text())
+        for b in boundaries:
+            grade = str(b[2])
+            perc = b[3]
+            if class_perc >= perc:
+                summary.item(0, NUM_QUESTIONS + 4).setText(grade)
+                break
+        for grade, val in grade_dict.items():
+            if val == median(class_grade_sum):
+                median_grade = grade
+        summary.item(1, NUM_QUESTIONS + 4).setText(median_grade)

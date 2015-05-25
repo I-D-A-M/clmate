@@ -3,7 +3,6 @@
 
 import warnings
 from PyQt4 import QtGui, QtCore
-import sqlite3
 import time
 import sys
 import os
