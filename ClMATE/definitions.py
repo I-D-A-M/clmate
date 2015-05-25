@@ -18,10 +18,12 @@ DEFAULT_PLOT_DPI = 100
 plot_style = 'barh'
 
 grey = QtGui.QColor(90, 90, 90, 255)
+dGrey = QtGui.QColor(20, 20, 20, 255)
 white = QtGui.QColor(255, 255, 255, 255)
 black = QtGui.QColor(0, 0, 0, 255)
-red = QtGui.QColor(255, 0, 0, 255)
-green = QtGui.QColor(198, 255, 179, 255)
-orange = QtGui.QColor(255, 236, 179, 255)
-pink = QtGui.QColor(224, 175, 237, 255)
+
+red = QtGui.QColor(255, 97, 97, 255)
+green = QtGui.QColor(175, 238, 193, 255)
+orange = QtGui.QColor(238, 224, 175, 255)
+purple = QtGui.QColor(225, 176, 238, 255)
 # pink = QtGui.QColor(255, 204, 217, 255)
