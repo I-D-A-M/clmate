@@ -8,6 +8,7 @@ from .analysis import *
 import sqlite3
 import time
 
+
 class MainWindow(QtGui.QMainWindow):
     '''
     This class defines and manages the main window including displaying/editing
@@ -16,12 +17,8 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-    def initUI(self, session_details = dict()):
+    def initUI(self, session_details=dict()):
         self.session_details = session_details
-        username = self.session_details["username"]
-        #DBname = self.session_details["DBname"]
-        permissionLevel = self.session_details["permissionLevel"]
-        #DB = sqlite3.connect(DBname)
         icon = QtGui.QIcon('ClMATE/resources/logo.png')
         self.setWindowIcon(icon)
         self.setWindowTitle(window_heading)
@@ -54,11 +51,11 @@ class MainWindow(QtGui.QMainWindow):
 
     def closeEvent(self, event):
         reply = QtGui.QMessageBox.question(
-                                self,
-                                "Warning!",
-                                "Are you sure you want to quit?",
-                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
-                                QtGui.QMessageBox.No)
+            self,
+            "Warning!",
+            "Are you sure you want to quit?",
+            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+            QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
             with open('clmate_log.txt', 'a') as log:
                 username = self.session_details["username"]
@@ -73,7 +70,6 @@ class MenuWidget(QtGui.QWidget):
         super(MenuWidget, self).__init__()
 
         self.session_details = session_details
-        username = self.session_details["username"]
         permissionLevel = self.session_details["permissionLevel"]
         self.main_window = self.session_details["main_window"]
 
@@ -82,79 +78,79 @@ class MenuWidget(QtGui.QWidget):
         self.setFont(MenuFont)
 
         classPerformance = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/crowd.png'),
-                                '&Class Performance',
-                                self)
+            QtGui.QIcon('ClMATE/resources/crowd.png'),
+            '&Class Performance',
+            self)
         pupilPerformance = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/female192.png'),
-                                '&Pupil Performance',
-                                self)
+            QtGui.QIcon('ClMATE/resources/female192.png'),
+            '&Pupil Performance',
+            self)
         recordAssessment = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/book135.png'),
-                                '&Record Assessment',
-                                self)
+            QtGui.QIcon('ClMATE/resources/book135.png'),
+            '&Record Assessment',
+            self)
         recordAssessment.triggered.connect(self.record_assessments)
         analyseResults = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/person236.png'),
-                                '&Analysis of Results',
-                                self)
+            QtGui.QIcon('ClMATE/resources/person236.png'),
+            '&Analysis of Results',
+            self)
         analyseResults.triggered.connect(self.analyse_results_cohort)
 
         if permissionLevel == 'admin':
             adminRecord = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/writing17.png'),
-                                '&Admin Record Override',
-                                self)
+                QtGui.QIcon('ClMATE/resources/writing17.png'),
+                '&Admin Record Override',
+                self)
             adminRecord.triggered.connect(self.admin_record_override)
             manageAssessments = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/homework.png'),
-                                '&Manage Assessments',
-                                self)
+                QtGui.QIcon('ClMATE/resources/homework.png'),
+                '&Manage Assessments',
+                self)
             newAssessment = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/pens.png'),
-                                "Create a new assessment",
-                                self)
+                QtGui.QIcon('ClMATE/resources/pens.png'),
+                "Create a new assessment",
+                self)
             newAssessment.triggered.connect(self.newAssessment)
             newAssessment.setShortcut('Alt+N')
             Aassigner = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/maths2.png'),
-                                "Assign assessments",
-                                self)
+                QtGui.QIcon('ClMATE/resources/maths2.png'),
+                "Assign assessments",
+                self)
             Aassigner.triggered.connect(self.aAssigner)
             manageCohort = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/teacher9.png'),
-                                '&Manage Cohort',
-                                self)
+                QtGui.QIcon('ClMATE/resources/teacher9.png'),
+                '&Manage Cohort',
+                self)
             # manageCohort.triggered.connect(...)
             manageUsers = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/man337.png'),
-                                '&Manage Users',
-                                self)
+                QtGui.QIcon('ClMATE/resources/man337.png'),
+                '&Manage Users',
+                self)
             # manageUsers.triggered.connect(...)
             manageCourses = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/student13.png'),
-                                '&Manage Courses',
-                                self)
+                QtGui.QIcon('ClMATE/resources/student13.png'),
+                '&Manage Courses',
+                self)
             newCourse = QtGui.QAction(
-                                QtGui.QIcon('ClMATE/resources/books8.png'),
-                                "Set up a new course",
-                                self)
+                QtGui.QIcon('ClMATE/resources/books8.png'),
+                "Set up a new course",
+                self)
             newCourse.triggered.connect(self.newCourse)
             newCourse.setShortcut('Alt+C')
 
         settings = QtGui.QAction(
-                            QtGui.QIcon('ClMATE/resources/three115.png'),
-                            '&Settings',
-                            self)
+            QtGui.QIcon('ClMATE/resources/three115.png'),
+            '&Settings',
+            self)
         about = QtGui.QAction(
-                            QtGui.QIcon('ClMATE/resources/graduation30.png'),
-                            '&About ClMATE',
-                            self)
+            QtGui.QIcon('ClMATE/resources/graduation30.png'),
+            '&About ClMATE',
+            self)
         about.triggered.connect(self.about)
         help_ = QtGui.QAction(
-                            QtGui.QIcon('ClMATE/resources/umbrella42.png'),
-                            '&Help',
-                            self)
+            QtGui.QIcon('ClMATE/resources/umbrella42.png'),
+            '&Help',
+            self)
 
         # -- Define and create the actions available for the user
         m_actions = [recordAssessment, classPerformance, pupilPerformance]
@@ -189,7 +185,7 @@ class MenuWidget(QtGui.QWidget):
         self.stackLayout.setMargin(0)
         self.stackLayout.setSpacing(0)
         self.menuBar = QtGui.QWidget()
-        self.menuBar.setFixedHeight(TOOLBAR_SIZE-2)
+        self.menuBar.setFixedHeight(TOOLBAR_SIZE - 2)
         self.menuBar.setLayout(self.stackLayout)
         self.mainLayout = QtGui.QVBoxLayout()
         self.mainLayout.setMargin(0)
@@ -211,24 +207,16 @@ class MenuWidget(QtGui.QWidget):
         self.stackLayout.addWidget(HelpActions)
 
         # -- add tab icons
-        self.switcher.setTabIcon(0,
-                            QtGui.QIcon('ClMATE/resources/clouds15.png'))
+        self.switcher.setTabIcon(0, QtGui.QIcon('ClMATE/resources/clouds15.png'))
         if permissionLevel == 'admin':
-            self.switcher.setTabIcon(1,
-                            QtGui.QIcon('ClMATE/resources/circle55.png'))
-            self.switcher.setTabIcon(2,
-                            QtGui.QIcon('ClMATE/resources/pie56.png'))
-            self.switcher.setTabIcon(3,
-                            QtGui.QIcon('ClMATE/resources/electronic51.png'))
-            self.switcher.setTabIcon(4,
-                            QtGui.QIcon('ClMATE/resources/rain33.png'))
+            self.switcher.setTabIcon(1, QtGui.QIcon('ClMATE/resources/circle55.png'))
+            self.switcher.setTabIcon(2, QtGui.QIcon('ClMATE/resources/pie56.png'))
+            self.switcher.setTabIcon(3, QtGui.QIcon('ClMATE/resources/electronic51.png'))
+            self.switcher.setTabIcon(4, QtGui.QIcon('ClMATE/resources/rain33.png'))
         else:
-            self.switcher.setTabIcon(1,
-                            QtGui.QIcon('ClMATE/resources/pie56.png'))
-            self.switcher.setTabIcon(2,
-                            QtGui.QIcon('ClMATE/resources/electronic51.png'))
-            self.switcher.setTabIcon(3,
-                            QtGui.QIcon('ClMATE/resources/rain33.png'))
+            self.switcher.setTabIcon(1, QtGui.QIcon('ClMATE/resources/pie56.png'))
+            self.switcher.setTabIcon(2, QtGui.QIcon('ClMATE/resources/electronic51.png'))
+            self.switcher.setTabIcon(3, QtGui.QIcon('ClMATE/resources/rain33.png'))
 
         self.mainLayout.addWidget(self.switcher)
         self.mainLayout.addWidget(self.menuBar)
@@ -274,10 +262,10 @@ class MenuWidget(QtGui.QWidget):
             assessments = DB.execute(query, (str(CHOSEN_CLASS),)).fetchall()
         # -- Warn the user if there are no currently assigned assessments
         if len(assessments) == 0:
-            failure = QtGui.QMessageBox.question(
-                                    self,
-                                    'Warning!',
-                                    "No assessments found for this class.")
+            QtGui.QMessageBox.question(
+                self,
+                'Warning!',
+                "No assessments found for this class.")
             return -1
         # -- Populate the assessment list and swap out
         #    the overview screen for the input screen
@@ -302,32 +290,40 @@ class MenuWidget(QtGui.QWidget):
         admin_panel = AdminPanel(self.session_details)
 
     def about(self):
-        info = QtGui.QMessageBox.question(self, 'About ClMATE',
-'''ClMATE - Close Monitoring and Analysis Tools for Educators
+        QtGui.QMessageBox.question(
+            self,
+            'About ClMATE',
+            ("ClMATE - Close Monitoring and Analysis Tools for Educators\n\n"
 
-ClMATE aims to provide teachers with a lightweight, easy to use \
-interface for recording and analysing pupil attainment data. \
-Multiple access levels are possible through admin accounts allowing \
-heads of departments to set and manage courses for their staff. \
-Initial set up can take a .xlsx output from SIMS.net in order to \
-automate the import of pupil details. If desired, ClMATE is capable \
-of exporting results data and analysis in a formatted .xlsx \
-file for printing and further analysis.
+             "ClMATE aims to provide teachers with a lightweight, easy to use "
+             "interface for recording and analysing pupil attainment data. "
+             "Multiple access levels are possible through admin accounts allowing "
+             "heads of departments to set and manage courses for their staff. "
+             "Initial set up can take a .xlsx output from SIMS.net in order to "
+             "automate the import of pupil details. If desired, ClMATE is capable "
+             "of exporting results data and analysis in a formatted .xlsx "
+             "file for printing and further analysis.\n\n"
 
-All data created with ClMATE is kept within a local directory SQLite3 \
-database. Please note that ClMATE can be run on either Python2.X or \
-Python3.X provided that all external libraries are present and currently \
-located in the working directory: no additional installation is required.
+             "All data created with ClMATE is kept within a local directory SQLite3 "
+             "database. Please note that ClMATE can be run on either Python2.X or "
+             "Python3.X provided that all external libraries are present and currently "
+             "located in the working directory: no additional installation is required.\n"
 
-All work is copyright I.Morrison 2014.
-Contact: @MrMorrisonMaths [Twitter]
+             "\nAll work is copyright I.Morrison 2014.\n"
+             "Contact: @MrMorrisonMaths [Twitter]\n"
 
-- External Libraries
-PyQt4
-http://www.riverbankcomputing.co.uk/software/pyqt/download
-Openpyxl
-http://openpyxl.readthedocs.org/en/latest/''')
-
+             "\n- External Libraries\n"
+             "\nPyQt4:: http://www.riverbankcomputing.co.uk/software/pyqt/download\n"
+             "> QtCore and QtGui modules are used to create the GUI interface of ClMATE.\n"
+             "\nNumpy:: http://www.numpy.org/\n"
+             "> High speed numerical computation.\n"
+             "\nPandas:: http://pandas.pydata.org/\n"
+             "> Efficient data analysis and manipulation.\n"
+             "\nMatplotLib:: http://matplotlib.org/\n"
+             "> Plotting and graphical representation of data.\n"
+             "\nOpenpyxl:: http://openpyxl.readthedocs.org/en/latest/\n"
+             "> Read and write capability for .xls / .xlsx including rich formatting "
+             "of the generated spreadsheet. NOTE: openpyxl requires jdcal in order to run."))
 
 
 class ActionBar(QtGui.QToolBar):

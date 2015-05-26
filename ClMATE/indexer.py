@@ -9,7 +9,7 @@ while True:
         print('Adding the index "results_index" to the results table under the UPN column...')
         curs.execute('create index results_index on results(UPN)')
         conn.commit()
-        conn.close()    
+        conn.close()
     elif decision == 'remove':
         print('Dropping index from results table...')
         curs.execute('drop index results_index')

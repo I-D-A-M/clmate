@@ -9,7 +9,6 @@ class OverviewWidget(QtGui.QWidget):
 
         self.session_details = session_details
         username = self.session_details["username"]
-        permissionLevel = self.session_details["permissionLevel"]
         DBname = self.session_details["DBname"]
 
         #  Set up the main window interface: stack layout managed by a tab bar
@@ -22,18 +21,18 @@ class OverviewWidget(QtGui.QWidget):
         self.mainLayout = QtGui.QVBoxLayout()
         self.switcher = QtGui.QTabBar()
         self.switcher.setStyleSheet(
-                            '''QWidget::tab {
-                                    background-color: lightGrey;
-                                    border: 1px solid grey;
-                                    border-bottom-left-radius: 5px;
-                                    border-bottom-right-radius: 5px;
-                                    margin-bottom: 4px;}
-                               QWidget::tab:selected {
-                                    background-color: white;
-                                    border-top-color: white;
-                                    margin-left: -2px;
-                                    margin-right: -2px;
-                                    margin-bottom: 0px;}''')
+            '''QWidget::tab {
+                    background-color: lightGrey;
+                    border: 1px solid grey;
+                    border-bottom-left-radius: 5px;
+                    border-bottom-right-radius: 5px;
+                    margin-bottom: 4px;}
+               QWidget::tab:selected {
+                    background-color: white;
+                    border-top-color: white;
+                    margin-left: -2px;
+                    margin-right: -2px;
+                    margin-bottom: 0px;}''')
         self.switcher.setShape(QtGui.QTabBar.TriangularSouth)
 
         # For each class assigned to the current login,

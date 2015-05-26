@@ -2,8 +2,8 @@ from PyQt4 import QtGui, QtCore
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from openpyxl import Workbook, load_workbook
-from matplotlib.figure import Figure
+# from openpyxl import Workbook, load_workbook
+# from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -25,6 +25,7 @@ class Analyser(QtGui.QWidget):
         self.session_details = session_details
         self.permissionLevel = self.session_details["permissionLevel"]
         self.DBname = self.session_details["DBname"]
+        self.username = self.session_details["username"]
         self.teaching_set = teaching_set
         self.title_string = 'Viewing data for ' + self.teaching_set
         self.coalation_type = 'mean'
@@ -55,28 +56,28 @@ class Analyser(QtGui.QWidget):
             ID_query = "SELECT staff_code from staff where username = ?"
             staffID = pd.read_sql(ID_query,
                                   DB,
-                                  params=[username])
+                                  params=[self.username])
             set_query = "SELECT teaching_set from staffing where staff_code = ?"
             setlist = pd.read_sql(set_query,
                                   DB,
                                   params=[staffID['staff_code'][0]])
             sets = setlist['teaching_set'].tolist()
             results_query = (
-                "SELECT * from results where "
-                " or ".join(("teaching_set = " + "'"+str(n)+"'" for n in sets)))
+                "SELECT * from results where " +
+                " or ".join(("teaching_set = " + "'" + str(n) + "' " for n in sets)))
             results = pd.read_sql(results_query, DB)
         assessments = pd.read_sql("SELECT * from assessments", DB)
         merged = pd.merge(
-                        results,
-                        assessments,
-                        how='left',
-                        left_on=['aID', 'qNum'],
-                        right_on=['aID', 'qNum'])
-        merged = merged.drop(
-                        ['aName_y', 'qTitle',
-                        'aName_x', 'course',
-                        'course_ID', 'module_ID'],
-                        axis=1)
+            results,
+            assessments,
+            how='left',
+            left_on=['aID', 'qNum'],
+            right_on=['aID', 'qNum'])
+        merged = merged.drop([
+            'aName_y', 'qTitle',
+            'aName_x', 'course',
+            'course_ID', 'module_ID'],
+            axis=1)
         cols = ['aID', 'qNum', 'UPN', 'qModule', 'qTopic',
                 'pMark', 'qMark', 'teaching_set']
         df = merged[cols]
@@ -93,20 +94,22 @@ class Analyser(QtGui.QWidget):
         the different types of plot that the user can request.
         '''
         if group_fields == ['Error!']:
-            warning = QtGui.QMessageBox.question(self, 'Uh oh...',
-                            ("Something went wrong. "
-                            "Please close the analysis screen and try again."))
-        elif default == True:
+            QtGui.QMessageBox.question(
+                self,
+                'Uh oh...',
+                ("Something went wrong. "
+                 "Please close the analysis screen and try again."))
+        elif default:
             class_sorted = self.class_results(tSet, group_fields)
             cohort_sorted = self.cohort_results(group_fields)
             new_dataframe = pd.merge(
-                        class_sorted,
-                        cohort_sorted,
-                        left_index=True,
-                        right_index=True)
+                class_sorted,
+                cohort_sorted,
+                left_index=True,
+                right_index=True)
             new_dataframe.rename(
-                        columns={'pob':'Class_percentage'},
-                        inplace=True)
+                columns={'pob': 'Class_percentage'},
+                inplace=True)
 
             # Sort the dataframe to be in alphabetical order
             # by index [The field grouped by]
@@ -117,22 +120,20 @@ class Analyser(QtGui.QWidget):
             class_sorted = self.class_results(tSet, group_fields)
             cohort_sorted = self.cohort_results(group_fields)
             new_dataframe = pd.merge(
-                        class_sorted,
-                        cohort_sorted,
-                        left_index=True,
-                        right_index=True)
+                class_sorted,
+                cohort_sorted,
+                left_index=True,
+                right_index=True)
             new_dataframe.rename(
-                        columns={'pob_x':'Class_percentage',
-                                 'pob_y':'Cohort_percentage'},
-                                  inplace=True)
+                columns={'pob_x': 'Class_percentage',
+                         'pob_y': 'Cohort_percentage'},
+                inplace=True)
         elif analysis == 'Class':
             new_dataframe = self.class_results(tSet, group_fields)
-            new_dataframe.rename(columns={'pob':'Class_percentage'},
-                                 inplace=True)
+            new_dataframe.rename(columns={'pob': 'Class_percentage'}, inplace=True)
         elif analysis == 'Cohort':
             new_dataframe = self.cohort_results(group_fields)
-            new_dataframe.rename(columns={'pob':'Cohort_percentage'},
-                                 inplace=True)
+            new_dataframe.rename(columns={'pob': 'Cohort_percentage'}, inplace=True)
         else:
             new_dataframe = self.dataframe
 
@@ -150,7 +151,7 @@ class Analyser(QtGui.QWidget):
             df = df_grouped.max()
             df['pob'] = np.vectorize(percentage_marks)(df['pMark'], df['qMark'])
             df['Colour'] = np.vectorize(colourise)(df['pob'])
-            df.rename(columns={'pob':'Class Max percentage'}, inplace=True)
+            df.rename(columns={'pob': 'Class Max percentage'}, inplace=True)
             df = df.drop(['pMark', 'qMark'], axis=1)
             if group_fields == ['qTopic']:
                 df = df.drop(['qModule'], axis=1)
@@ -164,13 +165,14 @@ class Analyser(QtGui.QWidget):
             df = np.round(df, 2)
             df['Colour'] = np.vectorize(colourise)(df['pob'])
             df = df.drop(['pMark', 'qMark'], axis=1)
-            df.rename(columns={'pob':'Class Mean percentage'}, inplace=True)
+            df.rename(columns={'pob': 'Class Mean percentage'}, inplace=True)
         else:
-            warning = QtGui.QMessageBox.question(self, 'Uh oh...',
-                            ("Something went wrong."
-                            "Please close the analysis screen and try again."))
+            QtGui.QMessageBox.question(
+                self,
+                'Uh oh...',
+                ("Something went wrong."
+                 "Please close the analysis screen and try again."))
         return df
-
 
     def cohort_results(self, group_fields):
         df_grouped = self.dataframe.groupby(group_fields)
@@ -178,9 +180,9 @@ class Analyser(QtGui.QWidget):
         if self.coalation_type == 'best':
             df = df_grouped.max()
             df['pob'] = np.vectorize(percentage_marks)(df['pMark'], df['qMark'])
-            df = df.drop(['pMark', 'qMark',  'aID', 'qNum'], axis=1)
+            df = df.drop(['pMark', 'qMark', 'aID', 'qNum'], axis=1)
             df['Colour'] = np.vectorize(colourise)(df['pob'])
-            df.rename(columns={'pob':'Cohort Max percentage'}, inplace=True)
+            df.rename(columns={'pob': 'Cohort Max percentage'}, inplace=True)
             if group_fields == ['qTopic']:
                 df = df.drop(['qModule'], axis=1)
             elif group_fields == ['qModule']:
@@ -188,17 +190,18 @@ class Analyser(QtGui.QWidget):
         elif self.coalation_type == 'mean':
             df = df_grouped.mean()
             df['pob'] = np.vectorize(percentage_marks)(df['pMark'], df['qMark'])
-            df = df.drop(['pMark', 'qMark',  'aID', 'qNum'], axis=1)
+            df = df.drop(['pMark', 'qMark', 'aID', 'qNum'], axis=1)
             # round off ALL values in the dataframe to 2 decimal places
             df = np.round(df, 2)
             df['Colour'] = np.vectorize(colourise)(df['pob'])
-            df.rename(columns={'pob':'Cohort Mean percentage'}, inplace=True)
+            df.rename(columns={'pob': 'Cohort Mean percentage'}, inplace=True)
         else:
-            warning = QtGui.QMessageBox.question(self, 'Uh oh...',
-                            ("Something went wrong."
-                            "Please close the analysis screen and try again."))
+            QtGui.QMessageBox.question(
+                self,
+                'Uh oh...',
+                ("Something went wrong."
+                 "Please close the analysis screen and try again."))
         return df
-
 
     def filters(self):
         DB = sqlite3.connect(self.DBname)
@@ -223,7 +226,7 @@ class Analyser(QtGui.QWidget):
             staff_query = "SELECT staff_code from staff where username = ?"
             staffID = pd.read_sql(staff_query,
                                   DB,
-                                  params=[username])
+                                  params=[self.username])
             set_query = "SELECT teaching_set from staffing where staff_code = ?"
             setlist = pd.read_sql(set_query,
                                   DB,
@@ -318,7 +321,7 @@ class Analyser(QtGui.QWidget):
                 query = "SELECT staff_code from staff where username = ?"
                 staffID = pd.read_sql(query,
                                       DB,
-                                      params=[username])
+                                      params=[self.username])
                 query = "SELECT teaching_set from staffing where staff_code = ?"
                 setlist = pd.read_sql(query,
                                       DB,
@@ -367,9 +370,9 @@ class Analyser(QtGui.QWidget):
         updated_title_string = 'Viewing data for ' + level_selection
         self.MainArea.plotArea.canvas.axes.cla()
         self.MainArea.plotArea.canvas.plot_data_frame(
-                                dataframe=prepaired_dataframe,
-                                kind=self.MainArea.plotArea.plot_style,
-                                title=updated_title_string)
+            dataframe=prepaired_dataframe,
+            kind=self.MainArea.plotArea.plot_style,
+            title=updated_title_string)
 
     def replace_main_widget(self):
         global overviewWidget
@@ -390,18 +393,18 @@ class AnalysisMainArea(QtGui.QWidget):
         self.mainLayout = QtGui.QVBoxLayout()
         self.switcher = QtGui.QTabBar()
         self.switcher.setStyleSheet(
-                                '''QWidget::tab {
-                                        background-color: lightGrey;
-                                        border: 1px solid grey;
-                                        border-bottom-left-radius: 5px;
-                                        border-bottom-right-radius: 5px;
-                                        margin-bottom: 4px;}
-                                   QWidget::tab:selected {
-                                        background-color: white;
-                                        border-top-color: white;
-                                        margin-left: -2px;
-                                        margin-right: -2px;
-                                        margin-bottom: 0px;}''')
+            '''QWidget::tab {
+                    background-color: lightGrey;
+                    border: 1px solid grey;
+                    border-bottom-left-radius: 5px;
+                    border-bottom-right-radius: 5px;
+                    margin-bottom: 4px;}
+               QWidget::tab:selected {
+                    background-color: white;
+                    border-top-color: white;
+                    margin-left: -2px;
+                    margin-right: -2px;
+                    margin-bottom: 0px;}''')
         self.switcher.setShape(QtGui.QTabBar.TriangularSouth)
 
         # This is the plot view of the data
@@ -445,9 +448,11 @@ class PlotWindow(QtGui.QWidget):
         plt.close()
 
     def initUI(self):
-        font = {'family' : 'mono',
-        'weight' : 'light',
-        'size'   : 6}
+        font = {
+            'family': 'mono',
+            'weight': 'light',
+            'size': 6
+        }
         matplotlib.rc('font', **font)
         self.canvas = PlotCanvas(self)
 

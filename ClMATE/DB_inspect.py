@@ -1,10 +1,8 @@
 #! C:\Python34\pythonw
 # -*- coding: utf-8 -*-
-
-import os
 import sqlite3
+
 # This will need to be a user defined path for when ClMATE gets distributed!
-#os.chdir('R:\ClMATE2.0\Code')
 DB = sqlite3.connect('ClMATE_DB.db')
 # -- Dump the current database to a text file for back up and review
 while True:
@@ -36,6 +34,7 @@ pupilNotes = DB.execute('select * from pupilNotes').fetchall()
 print("OK. Now we're ready...")
 print("Available queries are: staffing, staff, cohort, courses, modules, assessments, assignedTests, assessmentDocs, gradeBoundaries,pupilNotes")
 print("Please call 'f_out(query)' with your chosen query for a formatted output.")
+
 
 # -- Formatted outputs
 def f_out(table_name):

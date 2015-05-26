@@ -162,7 +162,6 @@ class InputWindow(QtGui.QWidget):
         main = QtGui.QWidget()
         vbox = QtGui.QVBoxLayout()
         grade_dict = self.grade_dict_list[self.switcher.currentIndex()]
-        boundaries = self.boundary_list[self.switcher.currentIndex()]
         GRADE_COMP_ENABLED = True
 
         DBname = self.session_details["DBname"]
@@ -191,7 +190,7 @@ class InputWindow(QtGui.QWidget):
                 TARGETS = DB.execute(query, (self.CHOSEN_CLASS,)).fetchall()
                 targetName = 'ALPs'
             else:
-                failure = QtGui.QMessageBox.question(
+                QtGui.QMessageBox.question(
                     self,
                     "Warning!",
                     "Unable to find year group for current class.")
@@ -524,7 +523,7 @@ class InputWindow(QtGui.QWidget):
             active.blockSignals(False)
         # -- Warn the user that the paste action has been aborted
         else:
-            failure = QtGui.QMessageBox.question(
+            QtGui.QMessageBox.question(
                 self,
                 'Warning!',
                 "Copied values will not fit in the selected range.")
@@ -571,14 +570,11 @@ class InputWindow(QtGui.QWidget):
         layout = self.stackLayout.currentWidget().layout()
         active = layout.itemAtPosition(0, 1).widget()
         questions = active.layout().itemAt(0).widget()
-        summary = active.layout().itemAt(1).widget()
         # Identify assessment properties based on which assessment is
         # currently active in the InpuWindow widget.
-        grade_dict = self.grade_dict_list[self.switcher.currentIndex()]
         boundaries = self.boundary_list[self.switcher.currentIndex()]
         col_maximums = self.col_max_list[self.switcher.currentIndex()]
         # col_maximums = [(Q totals...), total, 100]
-        total_marks = col_maximums[-2]
         GRADE_COMP_ENABLED = self.grade_comp_list[self.switcher.currentIndex()]
         CHOSEN_ASSESSMENT = str(self.switcher.currentText())
 
@@ -720,9 +716,11 @@ class InputWindow(QtGui.QWidget):
                     pMark = int(questions.item(p, q + 2).text())
                     # Test and block saving if errors were made in data entry
                     if pMark == 999999:
-                        failure = QtGui.QMessageBox.question(self, 'Warning!',
-                            "Errors were detected in the data you have entered. \
-                            Please re-check any red highlighted cells.")
+                        QtGui.QMessageBox.question(
+                            self,
+                            'Warning!',
+                            "Errors were detected in the data you have entered."
+                            "Please re-check any red highlighted cells.")
                         results = None
                         return 'errors found in data'
                     else:
@@ -788,9 +786,7 @@ class InputWindow(QtGui.QWidget):
                      '_' + time.strftime("%d-%m-%Y") +
                      '.xlsx')
         else:
-            failure = QtGui.QMessageBox.question(self,
-                                                 'Error!',
-                                                 "Could not identify OS.")
+            QtGui.QMessageBox.question(self, 'Error!', "Could not identify OS.")
             return -1
         # Block saving if there are errors in the data
         for p in range(self.CLASS_SIZE):
@@ -798,7 +794,7 @@ class InputWindow(QtGui.QWidget):
                 pMark = int(questions.item(p, q + 2).text())
                 # Test and block saving if errors were made in data entry
                 if pMark == 999999:
-                    failure = QtGui.QMessageBox.question(
+                    QtGui.QMessageBox.question(
                         self,
                         'Warning!',
                         "Errors were detected in the data you have entered."
@@ -839,7 +835,7 @@ class InputWindow(QtGui.QWidget):
         DB.close()
 
         wb.save(title)
-        Confirm = QtGui.QMessageBox.question(
+        QtGui.QMessageBox.question(
             self,
             'Success',
             "Please check the ClMATE output directory "

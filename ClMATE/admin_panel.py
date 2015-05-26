@@ -3,6 +3,7 @@ from .bases import StdWindow
 from PyQt4 import QtGui, QtCore
 import sqlite3
 
+
 class AdminPanel(StdWindow):
     def __init__(self, session_details):
         super(AdminPanel, self).__init__()
@@ -21,7 +22,7 @@ class AdminPanel(StdWindow):
         # Need to look at showing a dynamic message...
         self.statusBar = QtGui.QStatusBar()
         self.statusBar.showMessage(
-                "This message can be set in the main_interface file")
+            "This message can be set in the main_interface file")
         self.mainLayout = QtGui.QVBoxLayout()
         self.switcher = QtGui.QTabBar()
         # Create a tab for each course and display the staffing of that course
@@ -54,7 +55,7 @@ class AdminPanel(StdWindow):
     def course_overview(self):
         DBname = self.session_details["DBname"]
         DB = sqlite3.connect(DBname)
-        overview= QtGui.QGroupBox('Select a class to enter data for: ')
+        overview = QtGui.QGroupBox('Select a class to enter data for: ')
         vbox = QtGui.QVBoxLayout()
         query = "select distinct teaching_set from staffing where course = ?"
         setlist = DB.execute(query, (self.current_course,)).fetchall()
@@ -78,7 +79,7 @@ class AdminPanel(StdWindow):
         DBname = self.session_details["DBname"]
         DB = sqlite3.connect(DBname)
         box = self.stackLayout.currentWidget().layout()
-        for n in range(box.count()-1):
+        for n in range(box.count() - 1):
             if box.itemAt(n).widget().isChecked():
                 label = box.itemAt(n).widget().text()
                 className = label.split('  Staff:')
@@ -92,10 +93,8 @@ class AdminPanel(StdWindow):
                 assessments = DB.execute(query, (str(CHOSEN_CLASS),)).fetchall()
                 # -- Warn the user if there are no assigned assessments
                 if len(assessments) == 0:
-                    failure = QtGui.QMessageBox.question(
-                                        self,
-                                        'Warning!',
-                                        "No assessments found for this class.")
+                    QtGui.QMessageBox.question(
+                        self, 'Warning!', "No assessments found for this class.")
                     return -1
                 # -- Populate the assessment list and swap out
                 #    the overview screen for the input screen

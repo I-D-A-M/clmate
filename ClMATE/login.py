@@ -32,8 +32,8 @@ class LoginBox(StdWindow):
         self.userbox.returnPressed.connect(self.logincheck)
         self.passbox.returnPressed.connect(self.logincheck)
         loginbtn.setToolTip(
-                "Contact your head of department if "
-                "you can not remember your password.")
+            "Contact your head of department if "
+            "you can not remember your password.")
         loginbtn.resize(loginbtn.sizeHint())
         # -- Selection box to allow password change
         self.change_pass = QtGui.QCheckBox('Change password')
@@ -102,15 +102,13 @@ class LoginBox(StdWindow):
                                      "where username = ?")
                             DB.execute(query, (new_pass, username))
                             DB.commit()
-                            success = QtGui.QMessageBox.question(
-                                            self,
-                                            "Success",
-                                            "Password Updated")
+                            QtGui.QMessageBox.question(
+                                self, "Success", "Password Updated")
                         else:
-                            failure = QtGui.QMessageBox.question(
-                                            self,
-                                            "Password Change Unsuccessful",
-                                            "New password entry did not match")
+                            QtGui.QMessageBox.question(
+                                self,
+                                "Password Change Unsuccessful",
+                                "New password entry did not match")
                     # -- Set permission level and launch the main window
                     query = "select account_type from staff where username = ?"
                     permissionLevel = DB.execute(query,
@@ -129,18 +127,18 @@ class LoginBox(StdWindow):
                     self.main_window.initUI(session_details)
                 # -- Password error
                 else:
-                    failure = QtGui.QMessageBox.question(
-                                        self,
-                                        "Login Unsuccessful",
-                                        ("The password you entered was not valid."
-                                         "\n(Please try again or contact your "
-                                         "head of department.)"))
+                    QtGui.QMessageBox.question(
+                        self,
+                        "Login Unsuccessful",
+                        ("The details you have entered are not valid."
+                         "\n(Please try again or contact your "
+                         "head of department.)"))
             # -- Username error
             else:
-                failure = QtGui.QMessageBox.question(
-                                        self,
-                                        "Login Unsuccessful",
-                                        ("The password you entered was not valid."
-                                         "\n(Please try again or contact your "
-                                         "head of department.)"))
+                QtGui.QMessageBox.question(
+                    self,
+                    "Login Unsuccessful",
+                    ("The details you have entered are not valid."
+                     "\n(Please try again or contact your "
+                     "head of department.)"))
         DB.close()

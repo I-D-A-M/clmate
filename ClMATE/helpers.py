@@ -1,6 +1,8 @@
 from PyQt4 import QtGui, QtCore
-from .definitions import grey, white, black, DBname
+from .definitions import grey, white, DBname
+from openpyxl import load_workbook
 import sqlite3
+
 
 def median(LIST):
     '''
@@ -24,8 +26,8 @@ def mean(LIST):
     return mean
 
 
-def percentage_marks(p,q):
-    return float("{0:.2f}".format((p/q)*100))
+def percentage_marks(p, q):
+    return float("{0:.2f}".format((p / q) * 100))
 
 
 def colourise(pob):
@@ -33,8 +35,8 @@ def colourise(pob):
        user defined colour scheme. '''
     # Will eventually need some way of storing and retrieving these
     # parameters in/from the databse via a config file.
-    G=90.00
-    O=60.00
+    G = 90.00
+    O = 60.00
     if pob >= G:
         colour = 'Green'
     elif pob >= O:
@@ -87,11 +89,11 @@ def createDB():
         # -- set up SQLite command templates
         addPupil = ("insert into cohort (UPN, Name, teaching_set, SEN, PP, "
                     "KS2Band, KS2lvl, FFT, GCSE_result, ASAlps, ASResult, A2Alps) "
-                   "values (?,?,?,?,?,?,?,?,?,?,?,?)")
+                    "values (?,?,?,?,?,?,?,?,?,?,?,?)")
         addStaff = ("insert into staff (staff_code, username, password, "
-                   "account_type) values (?, ?, ?, ?)")
+                    "account_type) values (?, ?, ?, ?)")
         addStaffing = ("insert into staffing (teaching_set, staff_code, yrGroup, "
-                      "course) values (?, ?, ?, ?)")
+                       "course) values (?, ?, ?, ?)")
         # Will need an input window that looks at the available classes and
         # then sets up staffing based on this.
         # -- At present, the 'super' user will load ALL available
@@ -194,8 +196,9 @@ def class_view(class_name, session_details):
                              (class_name,)).fetchall()
         targetName = 'ALPs'
     else:
-        failure = QtGui.QMessageBox.question(self, 'Warning!',
-                            "Unable to find year group for current class.")
+        QtGui.QMessageBox.question(
+            'Warning!',
+            "Unable to find year group for current class.")
         return -1
     # -- Locate target grades
     target_list = []

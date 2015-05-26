@@ -1,6 +1,7 @@
 from PyQt4 import QtGui, QtCore
 from .definitions import window_heading
 
+
 class StdWindow(QtGui.QWidget):
     '''
     Default window layout within ClMATE. This sets the window icon and defines

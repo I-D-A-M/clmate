@@ -1,8 +1,10 @@
 import os
+import sys
 import sqlite3
 from PyQt4 import QtGui
 from .bases import StdWindow, QIComboBox
 from .definitions import window_heading
+
 
 class Assessment(QtGui.QWizard):
     '''
@@ -21,11 +23,12 @@ class Assessment(QtGui.QWizard):
         # -- Inform the user of what information they need to continue.
         intro_page = QtGui.QWizardPage()
         intro_page.setTitle("ClMATE Assessment Creator")
-        intro_label = QtGui.QLabel("Welcome to the ClMATE assessment creator."
-                "\n\nBefore you begin, make sure that you have the following "
-                "details at hand:\n\n  Course Title\n  Question Titles\n  "
-                "Question questions\n  Marks for each question\n  "
-                "File locations for the paper and mark scheme")
+        intro_label = QtGui.QLabel(
+            "Welcome to the ClMATE assessment creator."
+            "\n\nBefore you begin, make sure that you have the following "
+            "details at hand:\n\n  Course Title\n  Question Titles\n  "
+            "Question questions\n  Marks for each question\n  "
+            "File locations for the paper and mark scheme")
         intro_label.setWordWrap(True)
         intro_layout = QtGui.QVBoxLayout()
         intro_layout.addWidget(intro_label)
@@ -48,8 +51,8 @@ class Assessment(QtGui.QWizard):
         self.details_page = QtGui.QWizardPage()
         self.details_page.setTitle("Assessment Details")
         self.details_instructions = QtGui.QLabel(
-                    "Please specify the assessment details and attach "
-                    "a question paper and a mark scheme:")
+            "Please specify the assessment details and attach "
+            "a question paper and a mark scheme:")
         self.details_instructions.setWordWrap(True)
         self.details_nameLabel = QtGui.QLabel("Assessment Name:")
         self.details_nameLineEdit = QtGui.QLineEdit()
@@ -71,9 +74,11 @@ class Assessment(QtGui.QWizard):
                                             self.coursebox,
                                             "currentItemData")
         else:
-            failure = QtGui.QMessageBox.question(self, 'Warning',
-                            "ClMATE currently has no registered courses. "
-                            "Please create one now.")
+            QtGui.QMessageBox.question(
+                self,
+                'Warning',
+                "ClMATE currently has no registered courses. "
+                "Please create one now.")
             global create_a_course
             create_a_course = Course()
             self.done()
@@ -114,8 +119,8 @@ class Assessment(QtGui.QWizard):
         self.question_page = QtGui.QWizardPage()
         self.question_page.setTitle("Questions")
         self.question_label = QtGui.QLabel(
-                "Please specify the title, module, topic "
-                "and available marks for each question:")
+            "Please specify the title, module, topic "
+            "and available marks for each question:")
         self.question_label.setWordWrap(True)
         # -- Scroll area widget contents
         self.question_scrollLayout = QtGui.QFormLayout()
@@ -193,7 +198,7 @@ class Assessment(QtGui.QWizard):
         self.confirm_page = QtGui.QWizardPage()
         self.confirm_page.setTitle("Confirm Assessment Entry")
         self.confirm_label = QtGui.QLabel(
-                        "Please check over all assessment details and confirm:")
+            "Please check over all assessment details and confirm:")
         self.confirm_label.setWordWrap(True)
         self.course_title = QtGui.QLabel()
         self.assessment_title = QtGui.QLabel()
@@ -245,11 +250,8 @@ class Assessment(QtGui.QWizard):
         self.setWizardStyle(self.ModernStyle)
         self.setWindowTitle(window_heading)
         self.setPixmap(0, QtGui.QPixmap('ClMATE/resources/watermark.png'))
-        self.button(QtGui.QWizard.NextButton).clicked.connect(
-                                                        self.handle_next)
-        self.button(QtGui.QWizard.FinishButton).clicked.connect(
-                                                        self.handle_assignment)
-
+        self.button(QtGui.QWizard.NextButton).clicked.connect(self.handle_next)
+        self.button(QtGui.QWizard.FinishButton).clicked.connect(self.handle_assignment)
 
         self.resize(1150, 600)
         self.center()
@@ -291,17 +293,21 @@ class Assessment(QtGui.QWizard):
                         perc = int(perc)
                         self.aBoundaries.append((self.aID, aName, grade, perc))
                     else:
-                        failure = QtGui.QMessageBox.question(self, 'Warning',
-                        "You specified a grade but no percentage lower bound.")
+                        QtGui.QMessageBox.question(
+                            self,
+                            'Warning',
+                            "You specified a grade but no percentage lower bound.")
             # -- Test for the existance of a 0
             if self.aBoundaries:
                 if self.aBoundaries[-1][3] != 0:
                     self.aBoundaries.append((aName, 'Fail', 0))
-                    warning = QtGui.QMessageBox.question(self, 'Warning',
-                            "You did not specify a 0 mark lower bound. \n"
-                            "(Fail: 0%) Has been added to your grade "
-                            "boundaries.\n To remove this please specify a "
-                            "catch-all grade below your current lowest grade.")
+                    QtGui.QMessageBox.question(
+                        self,
+                        'Warning',
+                        "You did not specify a 0 mark lower bound. \n"
+                        "(Fail: 0%) Has been added to your grade "
+                        "boundaries.\n To remove this please specify a "
+                        "catch-all grade below your current lowest grade.")
                 # -- Format boundary information for the summary page
                 nice_boundaries = ''
                 for b in self.aBoundaries:
@@ -313,11 +319,13 @@ class Assessment(QtGui.QWizard):
                 self.aBoundaries = tuple(self.aBoundaries)
             # -- Warn that no boundaries were entered
             else:
-                warning = QtGui.QMessageBox.question(self, 'Warning',
-                                "You did not specify any grade boundaries."
-                                "\nA default X grade has been entered."
-                                "\nAnalysis against pupil targets will be "
-                                "unavailable with this assessment.")
+                QtGui.QMessageBox.question(
+                    self,
+                    'Warning',
+                    "You did not specify any grade boundaries."
+                    "\nA default X grade has been entered."
+                    "\nAnalysis against pupil targets will be "
+                    "unavailable with this assessment.")
                 nice_boundaries = ''
                 nice_boundaries = "X: 0%"
                 self.aBoundaries = (aName, 'X', 0)
@@ -358,7 +366,7 @@ class Assessment(QtGui.QWizard):
                 for row in range(numQs):
                     # -- Rip values from Question widgets
                     q = self.question_scrollLayout.itemAt(row).widget()
-                    num = row+1
+                    num = row + 1
                     numl = QtGui.QLabel(str(num))
                     title = str(q.qbox.text())
                     titlel = QtGui.QLabel(title)
@@ -432,9 +440,10 @@ class Assessment(QtGui.QWizard):
         Utility method for locating a file path.
         '''
         # This defaults to the user's home directory
-        filename = QtGui.QFileDialog.getOpenFileName(self,
-                            'Please select a file to attach',
-                            os.path.expanduser("~"))
+        filename = QtGui.QFileDialog.getOpenFileName(
+            self,
+            'Please select a file to attach',
+            os.path.expanduser("~"))
         if sys.platform == 'win32':
             path_list = filename.split('/')
             filename = '\\'.join(path_list)
@@ -545,7 +554,7 @@ class AssessmentAssigner(StdWindow):
             COURSE_IDs = DB.execute(query).fetchall()
             for c in COURSE_IDs:
                 c_query = "select course_title from courses where course_ID = ?"
-                course = DB.execute(c_query , (int(c[0]),)).fetchall()[0][0]
+                course = DB.execute(c_query, (int(c[0]),)).fetchall()[0][0]
                 self.yrGroup.addItem(str(course),)
         DB.close()
 
@@ -640,7 +649,7 @@ class AssessmentAssigner(StdWindow):
 
         for row in range(len(questions)):
             # Display question details
-            num = row+1
+            num = row + 1
             numl = QtGui.QLabel(str(num))
             title = str(questions[row][3])
             titlel = QtGui.QLabel(title)
@@ -649,7 +658,7 @@ class AssessmentAssigner(StdWindow):
             topic = str(questions[row][5])
             topicl = QtGui.QLabel(topic)
             marks = str(questions[row][6])
-            marksl = QtGui.QLabel('/'+str(marks))
+            marksl = QtGui.QLabel('/' + str(marks))
             # Set up summary screen
             summary = QtGui.QWidget()
             summary_layout = QtGui.QHBoxLayout()
@@ -678,10 +687,10 @@ class AssessmentAssigner(StdWindow):
         global assignment_window
         aID = self.name_ID_pairs[str(self.aName.currentText())]
         assignment_window = GroupSelectionWindow(
-                                    self.session_details,
-                                    aID,
-                                    str(self.aName.currentText()),
-                                    str(self.yrGroup.currentText()))
+            self.session_details,
+            aID,
+            str(self.aName.currentText()),
+            str(self.yrGroup.currentText()))
         self.close()
 
 
@@ -768,14 +777,13 @@ class Course(QtGui.QWizard):
         super(Course, self).__init__()
         icon = QtGui.QIcon('ClMATE/resources/logo.png')
         self.setWindowIcon(icon)
-        DBname = session_details["DBname"]
 
         intro_page = QtGui.QWizardPage()
         intro_page.setTitle("ClMATE Course Creator")
         intro_label = QtGui.QLabel(
-                "Welcome to the ClMATE course creator tool."
-                "\n\nBefore you begin, make sure that you have "
-                "all module and topic details at hand.")
+            "Welcome to the ClMATE course creator tool."
+            "\n\nBefore you begin, make sure that you have "
+            "all module and topic details at hand.")
         intro_label.setWordWrap(True)
         intro_layout = QtGui.QVBoxLayout()
         intro_layout.addWidget(intro_label)
@@ -787,8 +795,8 @@ class Course(QtGui.QWizard):
         self.module_page.setTitle("Course Title and Modules")
 
         self.module_instructions = QtGui.QLabel(
-                "Please specify the name of the course and "
-                "all modules to be studied separated by semi-colons:")
+            "Please specify the name of the course and "
+            "all modules to be studied separated by semi-colons:")
 
         self.module_nameLabel = QtGui.QLabel("Course Name:")
         self.module_nameLineEdit = QtGui.QLineEdit()
@@ -812,8 +820,8 @@ class Course(QtGui.QWizard):
         self.topic_page = QtGui.QWizardPage()
         self.topic_page.setTitle("Module Topics")
         self.topic_label = QtGui.QLabel(
-                    "Please specify the topics within each module that "
-                    "you would like to track separated by semi-colons:")
+            "Please specify the topics within each module that "
+            "you would like to track separated by semi-colons:")
         self.topic_label.setWordWrap(True)
 
         # scroll area widget contents
@@ -836,7 +844,7 @@ class Course(QtGui.QWizard):
         self.confirm_page = QtGui.QWizardPage()
         self.confirm_page.setTitle("Confirm Course Entry")
         self.confirm_label = QtGui.QLabel(
-                            "Please check over all course details and confirm:")
+            "Please check over all course details and confirm:")
         self.confirm_label.setWordWrap(True)
 
         self.course_title = QtGui.QLabel()
@@ -862,8 +870,8 @@ class Course(QtGui.QWizard):
         self.done_page = QtGui.QWizardPage()
         self.done_page.setTitle("Course Entry Complete")
         self.done_label = QtGui.QLabel(
-                "Your course has now been stored in ClMATE. "
-                "It may now be used to create assessments.")
+            "Your course has now been stored in ClMATE. "
+            "It may now be used to create assessments.")
         self.done_label.setWordWrap(True)
 
         self.done_layout = QtGui.QVBoxLayout()
@@ -907,8 +915,8 @@ class Course(QtGui.QWizard):
 
         elif id == 3:
             self.course_title.setText(
-                        "Course Title: " +
-                        str(self.module_page.field("COURSE_NAME")))
+                "Course Title: " +
+                str(self.module_page.field("COURSE_NAME")))
             if self.confirm_scrollLayout.count():
                 for row in range(self.confirm_scrollLayout.count()):
                     p = self.confirm_scrollLayout.itemAt(0).widget()
@@ -935,7 +943,7 @@ class Course(QtGui.QWizard):
                             "order by course_ID desc limit 1")
                 course_ID = DB.execute(ID_query).fetchone()
                 if course_ID:
-                    course_ID = int(course_ID[0])+1
+                    course_ID = int(course_ID[0]) + 1
                 else:
                     course_ID = 1
                 addmodule = ("insert into courses (course_title, "
@@ -950,9 +958,9 @@ class Course(QtGui.QWizard):
                              "order by module_ID desc limit 1")
                     module_ID_current_max = DB.execute(query).fetchone()
                     if module_ID_current_max:
-                        module_ID = int(module_ID_current_max[0])+1+m[0]
+                        module_ID = int(module_ID_current_max[0]) + 1 + m[0]
                     else:
-                        module_ID = 1+m[0]
+                        module_ID = 1 + m[0]
                     split_topics = str(self.topic_page.field(m[1])).split('; ')
                     for t in split_topics:
                         topic_list.append((m[1], module_ID, t))
