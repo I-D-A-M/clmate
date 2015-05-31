@@ -9,6 +9,8 @@ def median(LIST):
     A simple helper function to calculate the median value of a list
     of numerical values.
     '''
+    assert type(LIST) == list
+
     half = len(LIST) // 2
     LIST.sort()
     if len(LIST) % 2 == 0:
@@ -22,6 +24,8 @@ def mean(LIST):
     A simple helper function to calculate the mean value of a list of
     numerical values formatted to two decimal places.
     '''
+    assert type(LIST) == list
+
     mean = float("{0:.1f}".format(sum(LIST) / float(len(LIST))))
     return mean
 
@@ -35,6 +39,8 @@ def colourise(pob):
        user defined colour scheme. '''
     # Will eventually need some way of storing and retrieving these
     # parameters in/from the databse via a config file.
+    assert ((pob >= 0) and (pob <= 100))
+
     G = 90.00
     O = 60.00
     if pob >= G:
