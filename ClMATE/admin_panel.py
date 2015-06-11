@@ -1,3 +1,10 @@
+'''
+-- Author:       I D A Morrison
+-- Twitter:      @MrMorrisonMaths
+-- PyVersion:    Python3.x
+-- Dependencies: PyQt4
+'''
+
 from .data_entry import InputWindow
 from .bases import StdWindow
 from PyQt4 import QtGui, QtCore

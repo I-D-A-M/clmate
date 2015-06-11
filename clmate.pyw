@@ -1,5 +1,11 @@
 #! C:\Python34\pythonw
 # -*- coding: utf-8 -*-
+'''
+-- Author:       I D A Morrison
+-- Twitter:      @MrMorrisonMaths
+-- PyVersion:    Python3.x
+-- Dependencies: PyQt4
+'''
 
 import warnings
 from PyQt4 import QtGui, QtCore

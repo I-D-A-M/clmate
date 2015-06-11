@@ -1,5 +1,9 @@
-'''Import pupil data into the database'''
-
+'''
+-- Author:       I D A Morrison
+-- Twitter:      @MrMorrisonMaths
+-- PyVersion:    Python3.x
+-- Dependencies: openpyxl
+'''
 import sqlite3
 from openpyxl import load_workbook
 

@@ -1,3 +1,9 @@
+'''
+-- Author:       I D A Morrison
+-- Twitter:      @MrMorrisonMaths
+-- PyVersion:    Python3.x
+-- Dependencies: PyQt4
+'''
 from PyQt4 import QtGui
 
 ################################################################################

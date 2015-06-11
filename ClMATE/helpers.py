@@ -1,7 +1,15 @@
+'''
+-- Author:       I D A Morrison
+-- Twitter:      @MrMorrisonMaths
+-- PyVersion:    Python3.x
+-- Dependencies: PyQt4, openpyxl, pdfkit
+'''
 from PyQt4 import QtGui, QtCore
 from .definitions import grey, white, DBname
 from openpyxl import load_workbook
 import sqlite3
+import pdfkit
+import os
 
 
 def median(LIST):
@@ -31,6 +39,10 @@ def mean(LIST):
 
 
 def percentage_marks(p, q):
+    '''
+    Find a percentage value to 2 decimal places. This is defined as a function
+    in order to allow broadcasting over Pandas DataFrames.
+    '''
     return float("{0:.2f}".format((p / q) * 100))
 
 
@@ -240,3 +252,37 @@ def class_view(class_name, session_details):
     class_overview.setColumnWidth(1, 60)
     class_overview.setColumnWidth(2, 500)
     return class_overview
+
+
+def pdf_export(html_string, file_name):
+    '''
+    Take a given html string and export the formatted output as
+    a pdf file.
+
+    Arguments:
+      html_string -- a Python string contain
+      file_name   -- a user submitted file name
+    Returns:
+      Success_value -- A tuple:(True, 'Success') / (False, 'reason for failure')
+    '''
+    # Strip .pdf from the file name if present
+    if file_name.endswith('.pdf'):
+        file_name = file_name[:-4]
+    # Test file_name for invalid characters (using windows banned characters
+    # to allow for cross platform as windows has the most restrictions).
+    for char in file_name:
+        if char in "\/:*?<>|":
+            return (False, 'A file name can not contain any of the following characters: \\ / : * ? < > |')
+    # Check for pre-existing files with the same name and warn the user if any are found.
+    if os.path.exists(file_name):
+        warning = QtGui.QMessageBox.question(
+            "Warning!",
+            "A file already exists with that name. Do you wish to replace it?",
+            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+            QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            pass
+        else:
+            return (False, 'Please select a unique file name.')
+    pdfkit.from_string(html_string, '{}.pdf'.format(file_name))
+    return (True, 'Success')

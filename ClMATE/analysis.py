@@ -1,9 +1,15 @@
+'''
+-- Author:       I D A Morrison
+-- Twitter:      @MrMorrisonMaths
+-- PyVersion:    Python3.x
+-- Dependencies: Pandas, Matplotlib, PyQt4, numpy
+
+This is the primary UI interface for ClMATE data analysis.
+'''
 from PyQt4 import QtGui, QtCore
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-# from openpyxl import Workbook, load_workbook
-# from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -430,8 +436,10 @@ class AnalysisMainArea(QtGui.QWidget):
                               self.tabSwitch)
 
     def tabSwitch(self):
-        # This function will take the current tab index and match
-        # the central widget index to it in order to swap tabs.
+        '''
+        This function will take the current tab index and match
+        the central widget index to it in order to swap tabs.
+        '''
         self.stackLayout.setCurrentIndex(self.switcher.currentIndex())
 
 

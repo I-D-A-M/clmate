@@ -1,3 +1,9 @@
+'''
+-- Author:       I D A Morrison
+-- Twitter:      @MrMorrisonMaths
+-- PyVersion:    Python3.x
+-- Dependencies: PyQt4, openpyxl
+'''
 from PyQt4 import QtGui, QtCore
 from .helpers import mean, median
 from .bases import StdWindow
@@ -542,6 +548,7 @@ class InputWindow(QtGui.QWidget):
             CHOSEN_ASSESSMENT = str(self.switcher.currentText())
             query = "select paper from assessmentDocs where aName = ?"
             paper_query = DB.execute(query, (CHOSEN_ASSESSMENT,)).fetchone()[0]
+            self.paper_path = str(paper_query)
         DB.close()
 
         self.paper_path = str(paper_query)

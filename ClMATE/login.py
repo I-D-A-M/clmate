@@ -1,3 +1,15 @@
+'''
+-- Author:       I D A Morrison
+-- Twitter:      @MrMorrisonMaths
+-- PyVersion:    Python3.x
+-- Dependencies: PyQt4
+
+The LoginBox class controls access to the ClMATE data management system. At present there is no encryption
+for the data stored within ClMATE which will be rectified in the Summer of 2015 (hopefully!) using SQLCipher.
+
+The login details are stored within the same database as the pupil data and the user has the option to change
+their password [but NOT their username].
+'''
 from .bases import StdWindow
 from PyQt4 import QtGui
 import sqlite3
@@ -10,14 +22,22 @@ class LoginBox(StdWindow):
     login details are stored within the same database as pupil and course data.
     '''
     def __init__(self, database_file_location, target_main_window):
+        '''
+        Arguments:
+          database_file_location -- this is to allow future use with multiple databases.
+          target_main_window     -- the main UI that will be spawned on successful login.
+        '''
         super(LoginBox, self).__init__()
         self.DBname = database_file_location
         self.main_window = target_main_window
         self.initUI()
 
     def initUI(self):
+        '''
+        LoginBox dimesions are hard coded at present and are not based on the
+        desktop resolution. This should be corrected.
+        '''
         self.resize(300, 120)
-        global userbox, passbox
         user = QtGui.QLabel('Username')
         passw = QtGui.QLabel('Password')
         self.userbox = QtGui.QLineEdit()
@@ -54,6 +74,8 @@ class LoginBox(StdWindow):
         '''
         If the user want's to change their password this function
         provides two text boxes to confirm the new password with.
+        NOTE -- At present this messes up the UI sizing and I can't find a way
+                to reset it...
         '''
         # -- User is changing their password
         if self.change_pass.checkState():
@@ -81,7 +103,6 @@ class LoginBox(StdWindow):
         User entered details are compared against database records: if login is
         successful then the session username and permission levels are set.
         '''
-        global username, password, permissionLevel
         username = str(self.userbox.text()).lower()
         password = str(self.passbox.text())
 

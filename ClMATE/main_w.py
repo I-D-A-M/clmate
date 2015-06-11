@@ -1,3 +1,9 @@
+'''
+-- Author:       I D A Morrison
+-- Twitter:      @MrMorrisonMaths
+-- PyVersion:    Python3.x
+-- Dependencies: PyQt4
+'''
 from PyQt4 import QtGui, QtCore
 from .definitions import window_heading, ICON_SIZE, TOOLBAR_SIZE
 from .main_interface import OverviewWidget
