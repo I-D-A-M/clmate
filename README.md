@@ -57,9 +57,9 @@ capable of exporting results data and analysis in a formatted .xlsx
 file for printing and further analysis.
 
 All data created with ClMATE is kept within a local directory SQLite3
-database. Please note that ClMATE can be run on either Python2.X or
-Python3.X provided that all external libraries are present and currently
-located in the working directory: no additional installation is required.
+database. Please note that ClMATE must be run on Python3.X. Provided that
+all external libraries are present and located in the working directory,
+no additional installation is required.
 
 All work is copyright I.Morrison 2014/15.
 contact: @MrMorrisonMaths [Twitter]
