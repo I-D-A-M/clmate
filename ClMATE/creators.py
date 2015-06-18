@@ -281,8 +281,9 @@ class Assessment(QtGui.QWizard):
                     self.question_scrollLayout.removeWidget(p)
             # -- Set up the correct number of question widgets
             numQs = int(self.details_page.field("NUMQs"))
+            database_handle = self.session_details['DBname']
             for q in range(numQs):
-                question = Question(self, q + 1)
+                question = Question(self, database_handle, q + 1)
                 self.question_scrollLayout.addWidget(question)
         # -- Boundary set up
         elif id == 4:
@@ -484,8 +485,9 @@ class Question(QtGui.QWidget):
     NOTE:: These options populate based on user entered
     courses and topics via the course manager.
     '''
-    def __init__(self, newAssm, qnum):
+    def __init__(self, newAssm, database_handle, qnum):
         super(Question, self).__init__()
+        self.database_handle = database_handle
         self.qnum = qnum
         COURSE = newAssm.course
         # -- Define fields for the question widget
@@ -495,7 +497,7 @@ class Question(QtGui.QWidget):
         self.qmodule = QtGui.QComboBox()
 
         # -- Locate availible modules in the database
-        DBname = self.session_details["DBname"]
+        DBname = self.database_handle
         with sqlite3.connect(DBname) as DB:
             query = "select module from courses where course_title = ?"
             MODULES = DB.execute(query, (COURSE,)).fetchall()
@@ -524,7 +526,7 @@ class Question(QtGui.QWidget):
         '''
         MODULE = str(self.qmodule.currentText())
         self.qtopic.clear()
-        DBname = self.session_details["DBname"]
+        DBname = self.database_handle
         with sqlite3.connect(DBname) as DB:
             t_query = "select topic from modules where module = ?"
             TOPICS = DB.execute(t_query, (MODULE,)).fetchall()
@@ -706,6 +708,7 @@ class GroupSelectionWindow(StdWindow):
     like to assign the chosen assessment to.
     '''
     def __init__(self, session_details, aID, chosenAssessment, year):
+        self.session_details = session_details
         self.aID = aID
         self.chosen = chosenAssessment
         self.yearGroup = year
