@@ -1,6 +1,6 @@
 '''
--- Author:       I D A Morrison
--- Twitter:      @MrMorrisonMaths
+-- Author:       I.D.A-M
+-- Twitter:      @InnesMorrison
 -- PyVersion:    Python3.x
 -- Dependencies: PyQt4, openpyxl
 '''
@@ -710,8 +710,8 @@ class InputWindow(QtGui.QWidget):
             query = "select UPN from cohort where name = ? and teaching_set = ?"
             UPN = DB.execute(query, (self.name_list[0], teaching_set)).fetchone()[0]
             query = ("select pMark from results where UPN = ? "
-                     "and aName = ? and qNum = ?")
-            already_entries = DB.execute(query, (UPN, aName, 1)).fetchone()
+                     "and aName = ? and qNum = ? and teaching_set = ?")
+            already_entries = DB.execute(query, (UPN, aName, 1, teaching_set)).fetchone()
 
             for p in range(self.CLASS_SIZE):
                 start = time.time()
@@ -888,7 +888,7 @@ class InputWindow(QtGui.QWidget):
                 self.compute_pupil_stats(ROW, questions, col_maximums, NUM_QUESTIONS, boundaries, grade_dict)
             else:
                 return
-        self.compute_summary_stats(ROW, questions, summary, col_maximums, NUM_QUESTIONS, boundaries, grade_dict)
+        self.compute_summary_stats(questions, summary, col_maximums, NUM_QUESTIONS, boundaries, grade_dict)
 
         # Re-enable cell signalling for future updates now that we have finished.
         questions.blockSignals(False)
@@ -975,17 +975,17 @@ class InputWindow(QtGui.QWidget):
                         u'\u2197' + '  ' + str(on_target))
                 break
 
-    def compute_summary_stats(self, ROW, questions, summary, col_maximums, NUM_QUESTIONS, boundaries, grade_dict):
+    def compute_summary_stats(self, questions, summary, col_maximums, NUM_QUESTIONS, boundaries, grade_dict):
         # --Update summary panel regardless of caller.
         class_grade_sum = []
         on_target_sum = []
         for p in range(self.CLASS_SIZE):
             # -- Find class grade total
             # -- Calculate and assign pupil total and percentage values.
-            pupil_grade = questions.item(ROW, NUM_QUESTIONS + 4).text()
+            pupil_grade = questions.item(p, NUM_QUESTIONS + 4).text()
             grade_score = grade_dict[pupil_grade]
             class_grade_sum.append(grade_score)
-            g = questions.item(ROW, 1)
+            g = questions.item(p, 1)
             single_target_grade = str(g.text())
             split_target = False
             try:
