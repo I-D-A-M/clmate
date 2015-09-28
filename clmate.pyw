@@ -1,8 +1,8 @@
 #! C:\Python34\pythonw
 # -*- coding: utf-8 -*-
 '''
--- Author:       I D A Morrison
--- Twitter:      @MrMorrisonMaths
+-- Author:       I.D.A-M
+-- Twitter:      @InnesMorrison
 -- PyVersion:    Python3.x
 -- Dependencies: PyQt4
 '''

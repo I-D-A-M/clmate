@@ -1,6 +1,6 @@
 '''
--- Author:       I D A Morrison
--- Twitter:      @MrMorrisonMaths
+-- Author:       I.D.A-M
+-- Twitter:      @InnesMorrison
 -- PyVersion:    Python3.x
 -- Dependencies: openpyxl
 '''

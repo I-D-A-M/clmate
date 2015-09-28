@@ -1,7 +1,7 @@
 __all__ = ["bases", "data_entry", "login", "main_w", "analysis", "creators", "helpers",
            "definitions", "main_interface", "admin_panel"]
 
-''''{--External Modules--}'''
+'''{--External Modules--}'''
 import matplotlib
 matplotlib.use("Agg")
 
