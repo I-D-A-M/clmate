@@ -24,8 +24,8 @@ redundancy in the codebase and prepare for integrated testing.
 
 
 --------------------------------------------------------------------------------
--- Building ClMATE with Py2exe --
----------------------------------
+Building ClMATE with Py2exe
+--------------------------------------------------------------------------------
 
 In order to have ClMATE function correctly when using Py2exe to build a single
 .exe a little juggling is required:
@@ -42,9 +42,10 @@ In order to get the resources to load correctly you will also need to create a
 folder named "ClMATE" in the newly created dist directory and copy in the
 resources folder from the source tree. After this, ClMATE should run identically
 to when it is run a script through the Python interpreter.
---------------------------------------------------------------------------------
 
+--------------------------------------------------------------------------------
 ClMATE - Close Monitoring and Analysis Tools for Educators
+--------------------------------------------------------------------------------
 
 The following code has been written to adapt and extend the work done
 by C.Stephenson with the ClMATE spreadsheet to provide teachers with
@@ -62,43 +63,37 @@ all external libraries are present and located in the working directory,
 no additional installation is required.
 
 All work is copyright I.Morrison 2014/15.
-contact: @MrMorrisonMaths [Twitter]
+contact: @InnesMorrison
+         innesdmorrison[at]gmail[dot]com
 
-================================================================================
+--------------------------------------------------------------------------------
 External Libraries
+--------------------------------------------------------------------------------
 
 PyQt4:: http://www.riverbankcomputing.co.uk/software/pyqt/download
 > QtCore and QtGui modules are required to create the GUI interface of ClMATE.
 
 Numpy:: http://www.numpy.org/
-> High speed numerical computation.
+> High speed numerical computation and dependency for Pandas.
 
 Pandas:: http://pandas.pydata.org/
-> Efficient data analysis and manipulation.
+> Efficient data analysis, manipulation and presentation.
 
 MatplotLib:: http://matplotlib.org/
 > Plotting and graphical representation of data.
 
 Openpyxl:: http://openpyxl.readthedocs.org/en/latest/
 > Read and write capability for .xls / .xlsx including rich formatting
-  of the generated spreadsheet. NOTE: openpyxl requires jdcal in order to run.
-
-pydoc -w::
-    Used to generate HTML documentation for ClMATE
+  of the generated spreadsheet.
 
 py2exe:: http://www.py2exe.org/
 > See https://pypi.python.org/pypi/py2exe/0.9.2.0 for details of use with
   Python3.
   NOTE:: GUI based programs can only be built with either bundle=3 or 2
 
-  py -3.4 -m py2exe.build_exe clmate.pyw -c --bundle-files 3
-
-
-================================================================================
+--------------------------------------------------------------------------------
 PROJECT PROGRESS [Project began 29/9/2014]
-
--- NOTE on version numbers::
-[Release version].[major update / break compatibility].[minor update / bugfix]
+--------------------------------------------------------------------------------
 
 [0.0.1] Main window UI and login box working [5/10/14]
 
@@ -212,8 +207,9 @@ PROJECT PROGRESS [Project began 29/9/2014]
 [0.5.2] Modified database accesses to use context managers and close all
         connections immediately on completion of read/write. [7/3/15]
 
-------------------------------------------------------
+--------------------------------------------------------------------------------
 TODO
+--------------------------------------------------------------------------------
 
 RE-FACTORING::
 When loading the assessments they should be created on the fly NOT
@@ -245,8 +241,9 @@ Help documentation
 
 First time setup wizard
 
-------------------------------------------------
+--------------------------------------------------------------------------------
 STYLE GUIDE
+--------------------------------------------------------------------------------
 
 Line length for ClMATE code is 90(ish) characters. A few characters over is fine
 but line lengths significantly over 90 should be split.
@@ -266,8 +263,9 @@ closing of the connection after each transaction.
 Where possible use "DB.row_factory = sqlite3.Row" to allow for a dictionary like
 interface with queries in order to improve readability.
 
------------------------------------------------------------------
+--------------------------------------------------------------------------------
 LOGGING
+--------------------------------------------------------------------------------
 
 User access to the database is logged using the following code:
 
