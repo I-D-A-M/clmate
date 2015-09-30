@@ -8,7 +8,7 @@ from PyQt4 import QtGui, QtCore
 from .helpers import mean, median
 from .bases import StdWindow
 from .main_interface import OverviewWidget
-from .definitions import QBOX_SIZE, grey, white, red, purple, orange, green, dGrey, export_path
+from .definitions import QBOX_SIZE, grey, white, red, purple, orange, green, pink, dGrey, export_path
 from collections import namedtuple
 from openpyxl import Workbook
 import sqlite3
@@ -907,12 +907,12 @@ class InputWindow(QtGui.QWidget):
             questions.item(ROW, COL).setBackgroundColor(red)
             return
 
-        if pMark >= (col_maximums[COL - 2]) * 0.9:
+        if pMark >= (col_maximums[COL - 2]) * 0.8:
             questions.item(ROW, COL).setBackgroundColor(green)
         elif pMark >= (col_maximums[COL - 2]) * 0.6:
             questions.item(ROW, COL).setBackgroundColor(orange)
         else:
-            questions.item(ROW, COL).setBackgroundColor(purple)
+            questions.item(ROW, COL).setBackgroundColor(pink)
 
     def compute_pupil_stats(self, ROW, questions, col_maximums, NUM_QUESTIONS, boundaries, grade_dict):
         pupil_marks = []
