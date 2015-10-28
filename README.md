@@ -1,26 +1,15 @@
-This version of ClMATE should work in exactly the same way as the original
-but ideally be more maintainable. In addition to purging all global variables
-the existing program will be broken up into the following modules:
+ClMATE (Close Monitoring and Analysis Tools for Educators)
 
-    readme.md
-    clmate.pyw
-    __init__.py
-    bases.py
-    helpers.py
-    login.py
-    main_w.py
-    main_interface.py
-    data_entry.py
-    analysis.py
-    admin_panel.py
-    [first_time_wizard.py]
-    creators.py
-    [db_manager.py]
-    [plugin_manager.py]
-    [user_preference.py]
+ClMATE is an open source data management and analysis project written and designed
+by Innes Anderson-Morrison. With emphasis on ease of use and portability, ClMATE
+allows teachers to record and analyse assessment data quickly.
 
-The aim of this is to increase code readability and modularity; reduce
-redundancy in the codebase and prepare for integrated testing.
+Currently in use in Fulford School in York, ClMATE is an ongoing project that
+aims to aid teachers in tracking student progress and determining intervention
+strategies.
+
+contact: innesdmorrison[at]gmail[dot]com
+         @innesmorrison / @MrMorrisonMaths
 
 
 --------------------------------------------------------------------------------
@@ -62,9 +51,7 @@ database. Please note that ClMATE must be run on Python3.X. Provided that
 all external libraries are present and located in the working directory,
 no additional installation is required.
 
-All work is copyright I.Morrison 2014/15.
-contact: @InnesMorrison
-         innesdmorrison[at]gmail[dot]com
+All work is copyright I.Anderson-Morrison 2014/15.
 
 --------------------------------------------------------------------------------
 External Libraries
