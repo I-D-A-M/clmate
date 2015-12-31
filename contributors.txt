@@ -1,5 +1,0 @@
-Main author:
-  Innes Morrison
-
-Contributing:
-  Peter Brohan
