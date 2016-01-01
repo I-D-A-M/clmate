@@ -71,14 +71,15 @@ class Reviewer():
             normRes = result(r.UPN, r.tSet, r.aID, r.qNum, float("{0:.5f}".format(norm)))
             self.active_results.append(normRes)
 
-    def select_worst(self, numPerPupil=3):
+    def select(self, mode='worst', numPerPupil=3):
         '''
-        For each pupil and each assessment, identify their worse 'numPerPupil' questions.
+        For each pupil and each assessment, identify their best/worst questions.
         Return is a dict of {aID:
                                 {UPN: worst results,
                                 ...},
                             ...}
         '''
+        assert((mode == 'worst') or (mode == 'best'))
         # -- fetch pupil UPNs
         with sqlite3.connect(self.DBname) as DB:
             query = "SELECT UPN from cohort where teaching_set = ?"
@@ -96,7 +97,10 @@ class Reviewer():
             for UPN in UPNs:
                 performance = [r for r in self.active_results if r.aID == aID and r.UPN == UPN[0]]
                 performance = sorted(performance, key=lambda x: x.norm)
-                perf = performance[:numPerPupil]
+                if mode == 'worst':
+                    perf = performance[:numPerPupil]
+                else:
+                    perf = performance[-numPerPupil:]
                 readable_results = [(titleDict[r.qNum], r.norm) for r in perf]
 
                 with sqlite3.connect(self.DBname) as DB:
@@ -127,18 +131,9 @@ class Reviewer():
 
 
 if __name__ == '__main__':
-    '''
-    Current year11 sets in the DB:
-        .11-PG
-        11-DBY
-        11-HH
-        .11-CCL
-        .11-AR
-        11-AK
-        .11-IM
-        11-MD
-    '''
-    r = Reviewer('11-IM', "ClMATE_DB_151218.db")
-    r.normalise('class')
-    r.select_worst(3)
-    r.write_to_disk("11-IM.txt")
+    y11 = ['11-PG', '11-DBY', '11-HH', '11-CCL', '11-AR', '11-AK', '11-IM', '11-MD']
+    for tSet in y11:
+        r = Reviewer(teaching_set=tSet, DBname="ClMATE_DB.db")
+        r.normalise(against='class')
+        r.select(mode='worst', numPerPupil=3)
+        r.write_to_disk(tSet + " - worst 3.txt")
