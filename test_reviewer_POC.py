@@ -1,4 +1,5 @@
 import sqlite3
+from openpyxl import Workbook
 from collections import namedtuple, OrderedDict
 
 
@@ -113,7 +114,7 @@ class Reviewer():
 
         self.output = classPerformance
 
-    def write_to_disk(self, filename="output.txt"):
+    def write_to_txt(self, filename="output.txt"):
         with open(filename, "w") as f:
             f.write("Here are the lowest performing topics per pupil vs the class mean.\n"
                     "Normalised performance has been calculated as:\n"
@@ -129,6 +130,45 @@ class Reviewer():
                         f.write("  {}: ({})\n".format(Q[0].strip(), Q[1]))
                 f.write('\n\n')
 
+    def write_to_xlsx(self, filename="output.xlsx"):
+        # This uses openpyxl
+        wb = Workbook()
+        # This will create a new sheet --> ws = wb.create_sheet()
+        ws = wb.active
+        ws.title = "ClMATE Assessment analysis - " + self.teaching_set
+
+        ''' This is from the data entry screen - REWRITE! '''
+        # -- Set up column headings
+        headings = ['UPN', 'Pupil name', 'Target']
+        for n in range(NUM_QUESTIONS):
+            headings.append(str(n + 1))
+        headings.append('Total')
+        headings.append('  %  ')
+        headings.append('Grade')
+        headings.append('Relative')
+        for col in range(NUM_QUESTIONS + 7):
+            heading = ws.cell(row=1, column=(col + 1))
+            heading.value = headings[col]
+
+        # -- Rip data
+        DBname = self.session_details["DBname"]
+        with sqlite3.connect(DBname) as DB:
+            for r in range(self.CLASS_SIZE):
+                upn_val = DB.execute("select UPN from cohort where name = ?",
+                                     (self.name_list[r],)).fetchone()[0]
+                upn = ws.cell(row=(r + 2), column=1)
+                upn.value = upn_val
+                for c in range(NUM_QUESTIONS + 5):
+                    cell_contents = str(questions.item(r, c).text())
+                    excel_cell = ws.cell(row=(r + 2), column=(c + 2))
+                    excel_cell.value = cell_contents
+                rel = str(questions.item(r, NUM_QUESTIONS + 5).text()[1:])
+                excel_cell = ws.cell(row=(r + 2), column=(NUM_QUESTIONS + 7))
+                excel_cell.value = rel
+        DB.close()
+
+        wb.save(title)
+
 
 if __name__ == '__main__':
     y11 = ['11-PG', '11-DBY', '11-HH', '11-CCL', '11-AR', '11-AK', '11-IM', '11-MD']
@@ -136,4 +176,4 @@ if __name__ == '__main__':
         r = Reviewer(teaching_set=tSet, DBname="ClMATE_DB.db")
         r.normalise(against='class')
         r.select(mode='worst', numPerPupil=3)
-        r.write_to_disk(tSet + " - worst 3.txt")
+        r.write_to_txt(tSet + " - worst 3.txt")

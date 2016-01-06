@@ -81,7 +81,7 @@ def generate_results(MASTER_DF=None, tSet=None):
         # psummary_df.sort(['sRate'], axis=0, ascending=1, inplace=True)
         psummary_df.rename(columns={'pMark': 'Mark', 'qMark': 'Available'}, inplace=True)
 
-        bplot = psummary_df["Best Sitting"].plot(kind='barh', figsize=(10,8), title="Data for {}".format(n))
+        bplot = psummary_df["Best Sitting"].plot(kind='barh', figsize=(10, 8), title="Data for {}".format(n))
         fig = bplot.get_figure()
         figname = "{}.jpg".format(n)
         fig.savefig(figname, transparent=False, bbox_inches='tight')
@@ -114,12 +114,12 @@ def export_to_pdf(file_name, whole_class=True, ):
     success, error_reason = pdf_export(html_string, file_name)
     if success:
         if file_name.endswith('.pdf'):
-        file_name = file_name[:-4]
+            file_name = file_name[:-4]
         os.startfile('{}.pdf'.format(file_name)
     else:
-            QtGui.QMessageBox.question(
-            "File creation was unsuccessful",
-            error_reason)
+        QtGui.QMessageBox.question(
+        "File creation was unsuccessful",
+        error_reason)
 
 
 def insert_images(tSet, namelist):

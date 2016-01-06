@@ -425,19 +425,23 @@ class InputWindow(QtGui.QWidget):
                                           col + 2,
                                           QtGui.QTableWidgetItem("%d" % 0))
             else:
-                # -- Read in stored data from the last data entry session.
-                query = ("select pMark from results where "
-                         "teaching_set = ? and aName = ?")
-                class_results = DB.execute(query,
-                                           (self.CHOSEN_CLASS, aName)).fetchall()
+                query = "select UPN, qNum, pMark from results where teaching_set = ? and aName = ?"
+                class_results = DB.execute(query, (self.CHOSEN_CLASS, aName)).fetchall()
+                query = "select UPN, name from cohort where teaching_set = ?"
+                class_names = DB.execute(query, (self.CHOSEN_CLASS,)).fetchall()
+
+                # Sort the results to be in alphabetical order by pupil and qNum order
+                class_name_map = dict(class_names)
+                sorted_results = sorted(class_results, key=lambda pupil: (class_name_map[pupil[0]], pupil[1]))
+
                 for row in range(self.CLASS_SIZE):
                     # This should slice the results list into pupil
                     # chunks with each one ordered by qNum
                     lower = (row * self.NUM_QUESTIONS)
                     upper = ((row + 1) * self.NUM_QUESTIONS)
-                    current_pupil_results = class_results[lower: upper]
+                    current_pupil_results = sorted_results[lower: upper]
                     for col in range(self.NUM_QUESTIONS):
-                        pMark = int(current_pupil_results[col][0])
+                        pMark = int(current_pupil_results[col][2])
                         questions.setItem(row,
                                           col + 2,
                                           QtGui.QTableWidgetItem("%d" % pMark))
