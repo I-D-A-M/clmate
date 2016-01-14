@@ -5,3 +5,4 @@ clmate_log.txt
 __DB_BACKUP__
 sims_data
 database_merge_and_y12_analysis.ipynb
+.ipynb_checkpoints/
