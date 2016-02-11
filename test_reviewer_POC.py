@@ -214,4 +214,4 @@ if __name__ == '__main__':
         r = Reviewer(teaching_set=tSet, DBname="ClMATE_DB.db")
         r.normalise(against='class')
         r.select(mode='worst', numPerPupil=3, overall_performance=True)
-        r.write_to_xlsx(tSet + " - target labels.xlsx")
+        r.write_to_xlsx(tSet + ".xlsx")
