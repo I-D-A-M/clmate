@@ -6,3 +6,6 @@ __DB_BACKUP__
 sims_data
 database_merge_and_y12_analysis.ipynb
 .ipynb_checkpoints/
+Notebooks/Output
+Notebooks/__pycache__
+Notebooks/ClMATE_DB.db
