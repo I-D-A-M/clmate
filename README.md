@@ -9,8 +9,7 @@ aims to aid teachers in tracking student progress and determining intervention
 strategies.
 
 contact: innesdmorrison[at]gmail[dot]com
-         @innesmorrison / @MrMorrisonMaths
-
+         @innesmorrison
 
 --------------------------------------------------------------------------------
 Building ClMATE with Py2exe
